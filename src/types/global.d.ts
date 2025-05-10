@@ -38,6 +38,7 @@ declare global {
   }
 
   export interface ISong {
+    id: string;
     title: string;
     albumTitle: string;
     imageUrl: string;

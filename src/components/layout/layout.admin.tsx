@@ -61,11 +61,6 @@ const AdminLayout: React.FC = () => {
               icon: <ExceptionOutlined />,
               label: <Link to="/shoes">Shoes</Link>,
             },
-            {
-              key: "4",
-              icon: <DollarCircleOutlined />,
-              label: <Link to="/orders">Orders</Link>,
-            },
           ]}
         />
       </Sider>
@@ -107,10 +102,6 @@ const AdminLayout: React.FC = () => {
             <Outlet />
           </div>
         </Content>
-
-        <Footer style={{ textAlign: "center" }}>
-          Jushoes Admin ©{new Date().getFullYear()} Created by You 😎
-        </Footer>
       </Layout>
     </Layout>
   );
