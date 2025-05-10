@@ -5,12 +5,16 @@ import { App, ConfigProvider } from "antd";
 import AdminLayout from "./components/layout/layout.admin";
 import Dashboard from "./pages/admin/dashboard";
 import Users from "./pages/admin/users";
-import Shoes from "./pages/admin/shoes";
-import Orders from "./pages/admin/orders";
+
 import enUS from "antd/es/locale/en_US";
 import { AppProvider } from "./components/context/app.context";
+import LoginPage from "./pages/admin/login";
 
 const router = createBrowserRouter([
+  {
+    path: "/login",
+    Component: LoginPage,
+  },
   {
     path: "/",
     Component: AdminLayout,
@@ -25,11 +29,9 @@ const router = createBrowserRouter([
       },
       {
         path: "shoes",
-        element: <Shoes />,
       },
       {
         path: "orders",
-        element: <Orders />,
       },
     ],
   },

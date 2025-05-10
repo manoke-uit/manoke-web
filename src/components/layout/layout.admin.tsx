@@ -6,50 +6,23 @@ import {
   ExceptionOutlined,
   DownOutlined,
   LogoutOutlined,
-  HomeOutlined,
 } from "@ant-design/icons";
 import { Dropdown, Layout, Menu, Space, message } from "antd";
 import { Link, Outlet, useNavigate } from "react-router-dom";
 import { FaUserCircle } from "react-icons/fa";
-import { logoutAPI } from "@/services/api";
 
 const AdminLayout: React.FC = () => {
   const { Header, Sider, Content, Footer } = Layout;
   const navigate = useNavigate();
 
   const handleLogout = async () => {
-    const res = await logoutAPI();
-    if (res) {
-      localStorage.removeItem("access_token");
-      message.success("Đã đăng xuất thành công!");
-      navigate("/login");
-    }
-  };
-
-  const handleGoHome = () => {
-    navigate("/");
+    localStorage.removeItem("access_token");
+    message.success("Đã đăng xuất thành công!");
+    navigate("/login");
   };
 
   const userMenu = {
     items: [
-      {
-        key: "home",
-        label: (
-          <div onClick={handleGoHome} className="flex items-center gap-2">
-            <HomeOutlined />
-            Về trang Home
-          </div>
-        ),
-      },
-      {
-        key: "info",
-        label: (
-          <Link to="/info" className="flex items-center gap-2">
-            <UserOutlined />
-            Cập nhật thông tin
-          </Link>
-        ),
-      },
       {
         key: "logout",
         label: (
@@ -76,22 +49,22 @@ const AdminLayout: React.FC = () => {
             {
               key: "1",
               icon: <DashboardOutlined />,
-              label: <Link to="/admin">Dashboard</Link>,
+              label: <Link to="/">Dashboard</Link>,
             },
             {
               key: "2",
               icon: <UserOutlined />,
-              label: <Link to="/admin/users">Users</Link>,
+              label: <Link to="/users">Users</Link>,
             },
             {
               key: "3",
               icon: <ExceptionOutlined />,
-              label: <Link to="/admin/shoes">Shoes</Link>,
+              label: <Link to="/shoes">Shoes</Link>,
             },
             {
               key: "4",
               icon: <DollarCircleOutlined />,
-              label: <Link to="/admin/orders">Orders</Link>,
+              label: <Link to="/orders">Orders</Link>,
             },
           ]}
         />

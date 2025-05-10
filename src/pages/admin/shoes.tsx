@@ -1,8 +1,8 @@
-import React from "react";
-import TableShoes from "../../components/admin/shoes/table.shoes";
+// import React from "react";
+// import TableShoes from "../../components/admin/shoes/table.shoes";
 
-const Shoes = () => {
-  return <TableShoes />;
-};
+// const Shoes = () => {
+//   return <TableShoes />;
+// };
 
-export default Shoes;
+// export default Shoes;

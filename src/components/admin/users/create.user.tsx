@@ -10,7 +10,7 @@ interface IProps {
 }
 
 type FieldType = {
-  fullName: string;
+  name: string;
   password: string;
   email: string;
   phone: string;
@@ -25,10 +25,10 @@ const CreateUser = (props: IProps) => {
   const [form] = Form.useForm();
 
   const onFinish: FormProps<FieldType>["onFinish"] = async (values) => {
-    const { fullName, password, email, phone } = values;
+    const { name, password, email, phone } = values;
     setIsSubmit(true);
-    const res = await createUserAPI(fullName, email, password, phone);
-    if (res && res.data) {
+    const res = await createUserAPI(email, password, name);
+    if (res) {
       message.success("Tạo mới user thành công");
       form.resetFields();
       setOpenModalCreate(false);
@@ -36,7 +36,6 @@ const CreateUser = (props: IProps) => {
     } else {
       notification.error({
         message: "Đã có lỗi xảy ra",
-        description: res.message,
       });
     }
     setIsSubmit(false);
@@ -70,7 +69,7 @@ const CreateUser = (props: IProps) => {
           <Form.Item<FieldType>
             labelCol={{ span: 24 }}
             label="Tên hiển thị"
-            name="fullName"
+            name="name"
             rules={[{ required: true, message: "Vui lòng nhập tên hiển thị!" }]}
           >
             <Input />

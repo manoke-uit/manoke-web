@@ -15,48 +15,79 @@ declare global {
     };
     result: T[];
   }
-  interface ILogin {
-    access_token: string;
-    user: {
-      email: string;
-      fullName: string;
-      _id: string;
-    };
-  }
-  interface IUserTable {
-    _id: string;
-    email: string;
-    fullName: string;
-    phone: string;
-    createdAt: string;
-    updatedAt: string;
-    role: string;
-  }
-  interface IUser {
-    email: string;
-    fullName: string;
-    _id: string;
-    role: string;
+
+  export interface IPaginationMeta {
+    totalItems: number;
+    itemCount: number;
+    itemsPerPage: number;
+    totalPages: number;
+    currentPage: number;
   }
   interface IRegister {
+    displayName: string;
     email: string;
-    fullName: string;
-    phone: string;
-    _id: string;
+    password: string;
   }
-  interface IShoesTable {
-    _id: string;
-    mainText: string;
-    brand: string;
-    price: number;
-    quantity: number;
-    category: string;
-    thumbnail: string;
-    slider: string[];
+  interface ILogin {
+    access_token: string;
+  }
+  export interface IFetchUser {
+    userId: string;
+    email: string;
+    adminSecret?: string;
+  }
+
+  export interface ISong {
+    title: string;
+    albumTitle: string;
+    imageUrl: string;
+    releasedDate: Date;
+    duration: number;
+    youtubeUrl: string;
+    spotifyUrl: string;
+    artistIds: string[];
+    playlistIds: string[];
+    scoreIds: string[];
+  }
+  export interface IPaginatedSongs {
+    items: ISong[];
+    meta: IPaginationMeta;
+  }
+  export interface IScore {
+    id: string;
+    audioUrl: string;
+    finalScore: number;
+    userId: string;
+    songId: string;
     createdAt: string;
-    updatedAt: string;
   }
-  interface IFetchAccount {
-    user: IUser;
+  export interface IPaginatedScores {
+    items: IScore[];
+    meta: IPaginationMeta;
+  }
+  export interface IPlaylist {
+    title: string;
+    userId: string;
+    imageUrl: string;
+    description: string;
+    songIds: string[];
+  }
+
+  export interface IPaginatedPlaylists {
+    items: IPlaylist[];
+    meta: IPaginationMeta;
+  }
+  interface IYoutubeResult {
+    title: string;
+    videoId: string;
+    embedUrl: string;
+    isEmbedded: boolean;
+    thumbnailUrl: string;
+  }
+
+  interface IYoutubeSearchResponse {
+    results: IYoutubeResult[];
+    nextPageToken: string;
+    prevPageToken: string;
   }
 }
