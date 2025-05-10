@@ -39,10 +39,7 @@ export const getAllUsersAPI = () => {
   const url = `/users`;
   return axios.get<IPaginatedSongs>(url);
 };
-export const updateSongAPI = (id: string) => {
-  const url = `/songs/${id}`;
-  return axios.patch<ISong>(url);
-};
+
 export const deleteSongAPI = (id: string) => {
   const url = `/songs/${id}`;
   return axios.delete<{ message: string }>(url);
@@ -51,27 +48,36 @@ export const getCategories = () => {
   const url = `/users`;
   return axios.get<IPaginatedSongs>(url);
 };
-export const createSongAPI = (
-  title: string,
-  youtubeUrl: string,
-  albumTitle: string,
-  imageUrl: string,
-  releasedDate: string,
-  duration: number,
-  spotifyUrl: string,
-  lyrics: string,
-  audioUrl: string
-) => {
+
+export const createSongAPI = (payload: {
+  title: string;
+  youtubeUrl: string;
+  albumTitle: string;
+  imageUrl: string;
+  releasedDate: string;
+  duration: number;
+  spotifyUrl: string;
+  lyrics: string;
+  audioUrl: string;
+}) => {
   const url = "/songs";
-  return axios.post(url, {
-    title,
-    youtubeUrl,
-    albumTitle,
-    imageUrl,
-    releasedDate,
-    duration,
-    spotifyUrl,
-    lyrics,
-    audioUrl,
-  });
+  return axios.post(url, payload);
+};
+
+export const updateSongAPI = (
+  id: string,
+  payload: Partial<{
+    title: string;
+    youtubeUrl: string;
+    albumTitle: string;
+    imageUrl: string;
+    releasedDate: string;
+    duration: number;
+    spotifyUrl: string;
+    lyrics: string;
+    audioUrl: string;
+  }>
+) => {
+  const url = `/songs/${id}`;
+  return axios.patch(url, payload);
 };

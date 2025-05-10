@@ -49,6 +49,9 @@ declare global {
     artistIds: string[];
     playlistIds: string[];
     scoreIds: string[];
+    lyrics: string;
+    category: string;
+    audioUrl: string;
   }
   export interface IPaginatedSongs {
     items: ISong[];

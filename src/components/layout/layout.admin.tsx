@@ -59,7 +59,7 @@ const AdminLayout: React.FC = () => {
             {
               key: "3",
               icon: <ExceptionOutlined />,
-              label: <Link to="/shoes">Shoes</Link>,
+              label: <Link to="/songs">Songs</Link>,
             },
           ]}
         />

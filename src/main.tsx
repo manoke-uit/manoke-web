@@ -9,6 +9,7 @@ import Users from "./pages/admin/users";
 import enUS from "antd/es/locale/en_US";
 import { AppProvider } from "./components/context/app.context";
 import LoginPage from "./pages/admin/login";
+import Songs from "./pages/admin/songs";
 
 const router = createBrowserRouter([
   {
@@ -28,10 +29,8 @@ const router = createBrowserRouter([
         element: <Users />,
       },
       {
-        path: "shoes",
-      },
-      {
-        path: "orders",
+        path: "songs",
+        element: <Songs />,
       },
     ],
   },
