@@ -2,15 +2,15 @@ import React from "react";
 import {
   DashboardOutlined,
   UserOutlined,
-  DollarCircleOutlined,
-  ExceptionOutlined,
   DownOutlined,
   LogoutOutlined,
 } from "@ant-design/icons";
 import { Dropdown, Layout, Menu, Space, message } from "antd";
 import { Link, Outlet, useNavigate } from "react-router-dom";
-import { FaUserCircle } from "react-icons/fa";
-
+import { FaArtstation, FaUserCircle } from "react-icons/fa";
+import { CiMusicNote1 } from "react-icons/ci";
+import { FaUserEdit } from "react-icons/fa";
+import { BiCategory } from "react-icons/bi";
 const AdminLayout: React.FC = () => {
   const { Header, Sider, Content, Footer } = Layout;
   const navigate = useNavigate();
@@ -58,8 +58,18 @@ const AdminLayout: React.FC = () => {
             },
             {
               key: "3",
-              icon: <ExceptionOutlined />,
+              icon: <CiMusicNote1 />,
               label: <Link to="/songs">Songs</Link>,
+            },
+            {
+              key: "4",
+              icon: <FaUserEdit />,
+              label: <Link to="/artists">Artists</Link>,
+            },
+            {
+              key: "5",
+              icon: <BiCategory />,
+              label: <Link to="/genres">Genres</Link>,
             },
           ]}
         />

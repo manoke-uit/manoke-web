@@ -1,59 +1,63 @@
 import { useEffect, useState } from "react";
 import { App, Divider, Form, Input, Modal, Select, DatePicker } from "antd";
 import type { FormProps } from "antd";
-import { createSongAPI, getCategories } from "@/services/api";
+import { updateSongAPI } from "@/services/api";
 import dayjs from "dayjs";
 
 interface IProps {
-  openModalCreate: boolean;
-  setOpenModalCreate: (v: boolean) => void;
+  openModalUpdate: boolean;
+  setOpenModalUpdate: (v: boolean) => void;
   refreshTable: () => void;
+  setDataUpdate: (v: ISong | null) => void;
+  dataUpdate: ISong | null;
 }
 
 type FieldType = {
+  id: string;
   title: string;
   songUrl: string;
   lyrics: string;
 };
 
-const CreateSongs = (props: IProps) => {
-  const { openModalCreate, setOpenModalCreate, refreshTable } = props;
-  const [form] = Form.useForm();
+const UpdateGenres = (props: IProps) => {
+  const {
+    openModalUpdate,
+    setOpenModalUpdate,
+    refreshTable,
+    setDataUpdate,
+    dataUpdate,
+  } = props;
+  const [isSubmit, setIsSubmit] = useState<boolean>(false);
   const { message, notification } = App.useApp();
-  const [isSubmit, setIsSubmit] = useState(false);
+  const [form] = Form.useForm();
 
   useEffect(() => {
-    const fetchCategory = async () => {
-      const res = await getCategories();
-      if (res) {
-        const d = res.items.map((item) => ({ label: item, value: item }));
-        // setListCategory(d);
-      }
-    };
-    fetchCategory();
-  }, []);
-
+    if (dataUpdate) {
+      form.setFieldsValue({
+        id: dataUpdate.id,
+        title: dataUpdate.title,
+        songUrl: dataUpdate.songUrl,
+        lyrics: dataUpdate.lyrics ?? "",
+      });
+    }
+  }, [dataUpdate]);
   const onFinish: FormProps<FieldType>["onFinish"] = async (values) => {
-    const { title, songUrl, lyrics } = values;
-
+    const { id, title, lyrics } = values;
     const payload = {
+      id,
       title,
-      songUrl,
       lyrics,
     };
-
     setIsSubmit(true);
-    const res = await createSongAPI(payload);
-    if (res && res.data) {
-      message.success("Tạo bài hát thành công!");
+    const res = await updateSongAPI(id, payload);
+    if (res) {
+      message.success("Cập nhật bài hát thành công");
       form.resetFields();
-      setOpenModalCreate(false);
+      setOpenModalUpdate(false);
+      setDataUpdate(null);
       refreshTable();
     } else {
-      notification.error({
-        message: "Tạo thất bại",
-        description: res?.message || "Lỗi không xác định",
-      });
+      notification.error({ message: "Đã có lỗi xảy ra" });
     }
     setIsSubmit(false);
   };
@@ -61,21 +65,22 @@ const CreateSongs = (props: IProps) => {
   return (
     <>
       <Modal
-        title="Thêm mới bài hát"
-        open={openModalCreate}
+        title="Cập nhật bài hát"
+        open={openModalUpdate}
         onOk={() => form.submit()}
         onCancel={() => {
-          setOpenModalCreate(false);
+          setOpenModalUpdate(false);
+          setDataUpdate(null);
           form.resetFields();
         }}
-        okText="Tạo mới"
+        okText="Cập nhật"
         cancelText="Hủy"
         confirmLoading={isSubmit}
       >
         <Divider />
         <Form
           form={form}
-          name="create-song"
+          name="update-song"
           onFinish={onFinish}
           autoComplete="off"
           layout="vertical"
@@ -85,8 +90,7 @@ const CreateSongs = (props: IProps) => {
             name="title"
             rules={[{ required: true }]}
           >
-            {" "}
-            <Input />{" "}
+            <Input />
           </Form.Item>
 
           <Form.Item<FieldType>
@@ -94,8 +98,7 @@ const CreateSongs = (props: IProps) => {
             name="songUrl"
             rules={[{ required: true }]}
           >
-            {" "}
-            <Input />{" "}
+            <Input />
           </Form.Item>
 
           <Form.Item<FieldType>
@@ -103,8 +106,7 @@ const CreateSongs = (props: IProps) => {
             name="lyrics"
             rules={[{ required: true }]}
           >
-            {" "}
-            <Input.TextArea rows={4} />{" "}
+            <Input.TextArea rows={4} />
           </Form.Item>
         </Form>
       </Modal>
@@ -112,4 +114,4 @@ const CreateSongs = (props: IProps) => {
   );
 };
 
-export default CreateSongs;
+export default UpdateGenres;

@@ -10,6 +10,8 @@ import enUS from "antd/es/locale/en_US";
 import { AppProvider } from "./components/context/app.context";
 import LoginPage from "./pages/admin/login";
 import Songs from "./pages/admin/songs";
+import Artists from "./pages/admin/artists";
+import Genres from "./pages/admin/genres";
 
 const router = createBrowserRouter([
   {
@@ -31,6 +33,14 @@ const router = createBrowserRouter([
       {
         path: "songs",
         element: <Songs />,
+      },
+      {
+        path: "artists",
+        element: <Artists />,
+      },
+      {
+        path: "genres",
+        element: <Genres />,
       },
     ],
   },

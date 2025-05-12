@@ -13,13 +13,19 @@ interface IProps {
 }
 
 type FieldType = {
-  id: string;
-  title: string;
-  songUrl: string;
+  _id: string;
+  mainText: string;
+  brand: string;
+  price: number;
+  category: string;
+  releasedDate: any;
+  youtubeUrl: string;
+  spotifyUrl: string;
+  audioUrl: string;
   lyrics: string;
 };
 
-const UpdateSongs = (props: IProps) => {
+const UpdateArtists = (props: IProps) => {
   const {
     openModalUpdate,
     setOpenModalUpdate,
@@ -31,25 +37,34 @@ const UpdateSongs = (props: IProps) => {
   const { message, notification } = App.useApp();
   const [form] = Form.useForm();
 
-  useEffect(() => {
-    if (dataUpdate) {
-      form.setFieldsValue({
-        id: dataUpdate.id,
-        title: dataUpdate.title,
-        songUrl: dataUpdate.songUrl,
-        lyrics: dataUpdate.lyrics ?? "",
-      });
-    }
-  }, [dataUpdate]);
+  useEffect(() => {}, [dataUpdate]);
+
   const onFinish: FormProps<FieldType>["onFinish"] = async (values) => {
-    const { id, title, lyrics } = values;
+    const {
+      _id,
+      mainText,
+      brand,
+      price,
+      category,
+      releasedDate,
+      youtubeUrl,
+      spotifyUrl,
+      audioUrl,
+      lyrics,
+    } = values;
     const payload = {
-      id,
-      title,
+      title: mainText,
+      albumTitle: brand,
+      duration: price,
+      category,
+      releasedDate: releasedDate.format("YYYY-MM-DD"),
+      youtubeUrl,
+      spotifyUrl,
+      audioUrl,
       lyrics,
     };
     setIsSubmit(true);
-    const res = await updateSongAPI(id, payload);
+    const res = await updateSongAPI(_id, payload);
     if (res) {
       message.success("Cập nhật bài hát thành công");
       form.resetFields();
@@ -85,27 +100,54 @@ const UpdateSongs = (props: IProps) => {
           autoComplete="off"
           layout="vertical"
         >
+          <Form.Item<FieldType> hidden name="_id" rules={[{ required: true }]}>
+            <Input />
+          </Form.Item>
           <Form.Item<FieldType>
             label="Tên bài hát"
-            name="title"
+            name="mainText"
             rules={[{ required: true }]}
           >
             <Input />
           </Form.Item>
-
           <Form.Item<FieldType>
-            label="Link bài hát"
-            name="songUrl"
+            label="Album"
+            name="brand"
             rules={[{ required: true }]}
           >
             <Input />
           </Form.Item>
-
           <Form.Item<FieldType>
-            label="Lyrics"
-            name="lyrics"
+            label="Thể loại"
+            name="category"
             rules={[{ required: true }]}
           >
+            <Input />
+          </Form.Item>
+          <Form.Item<FieldType>
+            label="Thời lượng (phút)"
+            name="price"
+            rules={[{ required: true }]}
+          >
+            <Input type="number" />
+          </Form.Item>
+          <Form.Item<FieldType>
+            label="Ngày phát hành"
+            name="releasedDate"
+            rules={[{ required: true }]}
+          >
+            <DatePicker format="YYYY-MM-DD" style={{ width: "100%" }} />
+          </Form.Item>
+          <Form.Item<FieldType> label="YouTube URL" name="youtubeUrl">
+            <Input />
+          </Form.Item>
+          <Form.Item<FieldType> label="Spotify URL" name="spotifyUrl">
+            <Input />
+          </Form.Item>
+          <Form.Item<FieldType> label="Audio URL" name="audioUrl">
+            <Input />
+          </Form.Item>
+          <Form.Item<FieldType> label="Lyrics" name="lyrics">
             <Input.TextArea rows={4} />
           </Form.Item>
         </Form>
@@ -114,4 +156,4 @@ const UpdateSongs = (props: IProps) => {
   );
 };
 
-export default UpdateSongs;
+export default UpdateArtists;

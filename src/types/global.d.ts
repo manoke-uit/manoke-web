@@ -40,10 +40,10 @@ declare global {
   export interface ISong {
     id: string;
     title: string;
-    category: string;
     songUrl: string;
     artists: string[];
     playlists: string[];
+    lyrics: string;
   }
   export interface IPaginatedSongs {
     items: ISong[];

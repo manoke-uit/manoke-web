@@ -51,15 +51,8 @@ export const getCategories = () => {
 
 export const createSongAPI = (payload: {
   title: string;
-  youtubeUrl: string;
-  albumTitle: string;
-  imageUrl: string;
-  releasedDate: string;
-  duration: number;
-  spotifyUrl: string;
   lyrics: string;
-  audioUrl: string;
-  category: string;
+  songUrl: string;
 }) => {
   const url = "/songs";
   return axios.post(url, payload);

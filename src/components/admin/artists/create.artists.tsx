@@ -16,7 +16,7 @@ type FieldType = {
   lyrics: string;
 };
 
-const CreateSongs = (props: IProps) => {
+const CreateArtists = (props: IProps) => {
   const { openModalCreate, setOpenModalCreate, refreshTable } = props;
   const [form] = Form.useForm();
   const { message, notification } = App.useApp();
@@ -112,4 +112,4 @@ const CreateSongs = (props: IProps) => {
   );
 };
 
-export default CreateSongs;
+export default CreateArtists;

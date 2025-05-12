@@ -9,16 +9,16 @@ import type { ActionType, ProColumns } from "@ant-design/pro-components";
 import { ProTable } from "@ant-design/pro-components";
 import { App, Button, message, notification, Popconfirm } from "antd";
 import { useEffect, useRef, useState } from "react";
-import CreateSongs from "./create.songs";
-import UpdateSongs from "./update.songs";
 import { getAllSongs } from "@/services/api";
+import CreateGenres from "./create.genres";
+import UpdateGenres from "./update.genres";
 
 type TSearch = {
   title?: string;
   category?: string;
 };
 
-const TableSongs = () => {
+const TableGenres = () => {
   const actionRef = useRef<ActionType | undefined>(undefined);
   const [shoesTable, setShoesTable] = useState<ISong[]>([]);
   const [isDeleteUser, setIsDeleteUser] = useState(false);
@@ -169,12 +169,12 @@ const TableSongs = () => {
           </Button>,
         ]}
       />
-      <CreateSongs
+      <CreateGenres
         openModalCreate={openModalCreate}
         setOpenModalCreate={setOpenModalCreate}
         refreshTable={refreshTable}
       />
-      <UpdateSongs
+      <UpdateGenres
         openModalUpdate={openModalUpdate}
         setOpenModalUpdate={setOpenModalUpdate}
         refreshTable={refreshTable}
@@ -185,4 +185,4 @@ const TableSongs = () => {
   );
 };
 
-export default TableSongs;
+export default TableGenres;

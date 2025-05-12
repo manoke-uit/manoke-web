@@ -4,8 +4,8 @@ import { fetchAccountAPI } from "../../services/api";
 interface IAppContext {
   isAuthenticated: boolean;
   setIsAuthenticated: (v: boolean) => void;
-  setUser: (v: IUser | null) => void;
-  user: IUser | null;
+  setUser: (v: IFetchUser | null) => void;
+  user: IFetchUser | null;
 }
 
 const CurrentAppContext = createContext<IAppContext | null>(null);
@@ -16,12 +16,12 @@ type TProps = {
 
 export const AppProvider = (props: TProps) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const [user, setUser] = useState<IUser | null>(null);
+  const [user, setUser] = useState<IFetchUser | null>(null);
   useEffect(() => {
     const fetchAccount = async () => {
       const res = await fetchAccountAPI();
-      if (res.data) {
-        setUser(res.data.user);
+      if (res) {
+        setUser(res);
         setIsAuthenticated(true);
       }
     };

@@ -9,16 +9,17 @@ import type { ActionType, ProColumns } from "@ant-design/pro-components";
 import { ProTable } from "@ant-design/pro-components";
 import { App, Button, message, notification, Popconfirm } from "antd";
 import { useEffect, useRef, useState } from "react";
-import CreateSongs from "./create.songs";
-import UpdateSongs from "./update.songs";
+
 import { getAllSongs } from "@/services/api";
+import CreateArtists from "./create.artists";
+import UpdateArtists from "../songs/update.songs";
 
 type TSearch = {
   title?: string;
   category?: string;
 };
 
-const TableSongs = () => {
+const TableArtists = () => {
   const actionRef = useRef<ActionType | undefined>(undefined);
   const [shoesTable, setShoesTable] = useState<ISong[]>([]);
   const [isDeleteUser, setIsDeleteUser] = useState(false);
@@ -109,17 +110,17 @@ const TableSongs = () => {
         columns={columns}
         actionRef={actionRef}
         cardBordered
-        pagination={{
-          current: meta.currentPage,
-          pageSize: meta.itemsPerPage,
-          showSizeChanger: true,
-          total: meta.totalPages,
-          showTotal: (total, range) => (
-            <div>
-              {range[0]}-{range[1]} trên {total} rows
-            </div>
-          ),
-        }}
+        // pagination={{
+        //   current: meta.currentPage,
+        //   pageSize: meta.itemsPerPage,
+        //   showSizeChanger: true,
+        //   total: meta.totalPages,
+        //   showTotal: (total, range) => (
+        //     <div>
+        //       {range[0]}-{range[1]} trên {total} rows
+        //     </div>
+        //   ),
+        // }}
         request={async (params, sort, filter) => {
           let query = "";
           if (params) {
@@ -169,12 +170,12 @@ const TableSongs = () => {
           </Button>,
         ]}
       />
-      <CreateSongs
+      <CreateArtists
         openModalCreate={openModalCreate}
         setOpenModalCreate={setOpenModalCreate}
         refreshTable={refreshTable}
       />
-      <UpdateSongs
+      <UpdateArtists
         openModalUpdate={openModalUpdate}
         setOpenModalUpdate={setOpenModalUpdate}
         refreshTable={refreshTable}
@@ -185,4 +186,4 @@ const TableSongs = () => {
   );
 };
 
-export default TableSongs;
+export default TableArtists;
