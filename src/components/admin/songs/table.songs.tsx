@@ -1,4 +1,3 @@
-import { getAllUsersAPI } from "@/services/api";
 import { dateRangeValidate } from "@/services/helper";
 import {
   CloudUploadOutlined,
@@ -12,12 +11,11 @@ import { App, Button, message, notification, Popconfirm } from "antd";
 import { useEffect, useRef, useState } from "react";
 import CreateSongs from "./create.songs";
 import UpdateSongs from "./update.songs";
+import { getAllSongs } from "@/services/api";
 
 type TSearch = {
-  mainText?: string;
-  brand?: string;
-  createdAt?: string;
-  createdAtRange?: string;
+  title?: string;
+  category?: string;
 };
 
 const TableSongs = () => {
@@ -27,11 +25,12 @@ const TableSongs = () => {
   const [openModalUpdate, setOpenModalUpdate] = useState<boolean>(false);
   const [dataUpdate, setDataUpdate] = useState<ISong | null>(null);
   const [openModalCreate, setOpenModalCreate] = useState<boolean>(false);
-  const [meta, setMeta] = useState({
-    current: 1,
-    pageSize: 5,
-    pages: 0,
-    total: 0,
+  const [meta, setMeta] = useState<IPaginationMeta>({
+    totalItems: 0,
+    itemCount: 0,
+    itemsPerPage: 5,
+    totalPages: 0,
+    currentPage: 1,
   });
   // const handleDeleteShoes = async (_id: string) => {
   //   setIsDeleteUser(true);
@@ -55,39 +54,29 @@ const TableSongs = () => {
     },
     {
       title: "Id",
-      dataIndex: "_id",
+      dataIndex: "id",
       hideInSearch: true,
     },
     {
-      title: "Shoes Name",
-      dataIndex: "mainText",
+      title: "Song Name",
+      dataIndex: "title",
       fieldProps: {
         placeholder: "",
       },
     },
     {
-      title: "Brand",
-      dataIndex: "brand",
-      fieldProps: {
-        placeholder: "",
-      },
-    },
-    {
-      title: "Created At",
-      dataIndex: "createdAt",
+      title: "Release Date",
+      dataIndex: "releasedDate",
       valueType: "date",
-      sorter: true,
-      hideInSearch: true,
-    },
-    {
-      title: "Created At",
-      dataIndex: "createdAtRange",
-      valueType: "dateRange",
-      hideInTable: true,
       fieldProps: {
-        placeholder: ["Start date", "End date"],
+        placeholder: "",
       },
     },
+    {
+      title: "Category",
+      dataIndex: "category",
+    },
+
     {
       title: "Action",
       hideInSearch: true,
@@ -101,11 +90,11 @@ const TableSongs = () => {
               setOpenModalUpdate(true);
             }}
           />
-          {/* <Popconfirm
+          <Popconfirm
             placement="leftTop"
             title={"Xác nhận xóa bài hát"}
             description={"Bạn có chắc chắn muốn xóa bài hát này ?"}
-            onConfirm={() => handleDeleteShoes(entity.id)}
+            // onConfirm={() => handleDeleteShoes(entity.id)}
             okText="Xác nhận"
             cancelText="Hủy"
             okButtonProps={{ loading: isDeleteUser }}
@@ -116,7 +105,7 @@ const TableSongs = () => {
                 style={{ cursor: "pointer" }}
               />
             </span>
-          </Popconfirm> */}
+          </Popconfirm>
         </>
       ),
     },
@@ -132,49 +121,45 @@ const TableSongs = () => {
         columns={columns}
         actionRef={actionRef}
         cardBordered
-        pagination={{
-          current: meta.current,
-          pageSize: meta.pageSize,
-          showSizeChanger: true,
-          total: meta.total,
-          showTotal: (total, range) => (
-            <div>
-              {range[0]}-{range[1]} trên {total} rows
-            </div>
-          ),
-        }}
-        // request={async (params, sort, filter) => {
-        //   let query = "";
-        //   if (params) {
-        //     query += `page=${params.current}&limit=${params.pageSize}`;
-        //     if (params.mainText) {
-        //       query += `&mainText=/${params.mainText}/i`;
-        //     }
-        //     if (params.brand) {
-        //       query += `&brand=/${params.brand}/i`;
-        //     }
-        //     const createDateRange = dateRangeValidate(params.createdAtRange);
-        //     if (createDateRange) {
-        //       query += `&createdAt>=${createDateRange[0]}&createdAt<=${createDateRange[1]}`;
-        //     }
-        //   }
-        //   if (sort && sort.createdAt) {
-        //     query += `&sort=${
-        //       sort.createdAt === "ascend" ? "createdAt" : "-createdAt"
-        //     }`;
-        //   } else query += `&sort=-createdAt`;
-        //   const res = await getShoesAPI(query);
-        //   if (res && res.data) {
-        //     setShoesTable(res.data.result);
-        //     setMeta(res.data.meta);
-        //   }
-        //   return {
-        //     data: res.data?.result,
-        //     page: 1,
-        //     success: true,
-        //     total: res.data?.meta.total,
-        //   };
+        // pagination={{
+        //   current: meta.currentPage,
+        //   pageSize: meta.itemsPerPage,
+        //   showSizeChanger: true,
+        //   total: meta.totalPages,
+        //   showTotal: (total, range) => (
+        //     <div>
+        //       {range[0]}-{range[1]} trên {total} rows
+        //     </div>
+        //   ),
         // }}
+        request={async (params, sort, filter) => {
+          let query = "";
+          if (params) {
+            query += `page=${params.current}&limit=${params.pageSize}`;
+            if (params.title) {
+              query += `&mainText=/${params.title}/i`;
+            }
+            if (params.category) {
+              query += `&brand=/${params.category}/i`;
+            }
+          }
+          if (sort && sort.createdAt) {
+            query += `&sort=${
+              sort.createdAt === "ascend" ? "createdAt" : "-createdAt"
+            }`;
+          } else query += `&sort=-createdAt`;
+          const res = await getAllSongs(query);
+          if (res) {
+            setShoesTable(res.items);
+            setMeta(res.meta);
+          }
+          return {
+            data: res.items,
+            page: 1,
+            success: true,
+            total: res.meta.totalPages,
+          };
+        }}
         headerTitle="Table user"
         toolBarRender={() => [
           <Button

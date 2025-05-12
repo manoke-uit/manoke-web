@@ -14,9 +14,8 @@ import CreateUser from "./create.user";
 import UpdateUser from "./update.user";
 
 type TSearch = {
-  fullName: string;
+  displayName: string;
   email: string;
-  createdAt: string;
   createdAtRange: string;
 };
 
@@ -27,22 +26,22 @@ const TableUser = () => {
   const [openModalUpdate, setOpenModalUpdate] = useState<boolean>(false);
   const [dataUpdate, setDataUpdate] = useState<IUserTable | null>(null);
   const [openModalCreate, setOpenModalCreate] = useState<boolean>(false);
-  const [meta, setMeta] = useState({
-    current: 1,
-    pageSize: 5,
-    pages: 0,
-    total: 0,
+  const [meta, setMeta] = useState<IPaginationMeta>({
+    totalItems: 0,
+    itemCount: 0,
+    itemsPerPage: 5,
+    totalPages: 0,
+    currentPage: 1,
   });
-  const handleDeleteUser = async (_id: string) => {
+  const handleDeleteUser = async (id: string) => {
     setIsDeleteUser(true);
-    const res = await deleteUserAPI(_id);
-    if (res && res.data) {
+    const res = await deleteUserAPI(id);
+    if (res) {
       message.success("Xóa user thành công");
       refreshTable();
     } else {
       notification.error({
         message: "Đã có lỗi xảy ra",
-        description: res.message,
       });
     }
     setIsDeleteUser(false);
@@ -55,12 +54,12 @@ const TableUser = () => {
     },
     {
       title: "Id",
-      dataIndex: "_id",
+      dataIndex: "id",
       hideInSearch: true,
     },
     {
-      title: "Full Name",
-      dataIndex: "fullName",
+      title: "Display Name",
+      dataIndex: "displayName",
       fieldProps: {
         placeholder: "",
       },
@@ -106,7 +105,7 @@ const TableUser = () => {
             placement="leftTop"
             title={"Xác nhận xóa user"}
             description={"Bạn có chắc chắn muốn xóa user này ?"}
-            onConfirm={() => handleDeleteUser(entity._id)}
+            onConfirm={() => handleDeleteUser(entity.id)}
             okText="Xác nhận"
             cancelText="Hủy"
             okButtonProps={{ loading: isDeleteUser }}
@@ -134,10 +133,10 @@ const TableUser = () => {
         actionRef={actionRef}
         cardBordered
         pagination={{
-          current: meta.current,
-          pageSize: meta.pageSize,
+          current: meta.currentPage,
+          pageSize: meta.itemsPerPage,
           showSizeChanger: true,
-          total: meta.total,
+          total: meta.totalItems,
           showTotal: (total, range) => (
             <div>
               {range[0]}-{range[1]} trên {total} rows
@@ -151,8 +150,8 @@ const TableUser = () => {
             if (params.email) {
               query += `&email=/${params.email}/i`;
             }
-            if (params.fullName) {
-              query += `&fullName=/${params.fullName}/i`;
+            if (params.displayName) {
+              query += `&fullName=/${params.displayName}/i`;
             }
             const createDateRange = dateRangeValidate(params.createdAtRange);
             if (createDateRange) {
@@ -165,15 +164,15 @@ const TableUser = () => {
             }`;
           } else query += `&sort=-createdAt`;
           const res = await getAllUsersAPI(query);
-          if (res && res.data) {
-            setUserTable(res.data.result);
-            setMeta(res.data.meta);
+          if (res) {
+            setUserTable(res.items);
+            setMeta(res.meta);
           }
           return {
-            data: res.data?.result,
+            data: res.items,
             page: 1,
             success: true,
-            total: res.data?.meta.total,
+            total: res.meta.totalPages,
           };
         }}
         headerTitle="Table user"

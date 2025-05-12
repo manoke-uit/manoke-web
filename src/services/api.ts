@@ -7,13 +7,13 @@ export const fetchAccountAPI = () => {
   const url = `/profile`;
   return axios.get<IFetchUser>(url);
 };
-export const getAllSongs = () => {
-  const url = `/songs`;
+export const getAllSongs = (query: string) => {
+  const url = `/songs?${query}`;
   return axios.get<IPaginatedSongs>(url);
 };
 export const logoutAPI = () => {
   const urlBackend = `/logout`;
-  return axios.post<IRegister>(urlBackend);
+  return axios.post<{ message: string }>(urlBackend);
 };
 export const createUserAPI = (
   email: string,
@@ -31,13 +31,13 @@ export const updateUserAPI = (
   const url = `/users`;
   return axios.patch<IRegister>(url, { email, password, name });
 };
-export const deleteUserAPI = () => {
-  const url = `/users`;
+export const deleteUserAPI = (id: string) => {
+  const url = `/users/${id}`;
   return axios.delete<IRegister>(url);
 };
-export const getAllUsersAPI = () => {
-  const url = `/users`;
-  return axios.get<IPaginatedSongs>(url);
+export const getAllUsersAPI = (query: string) => {
+  const url = `/users/${query}`;
+  return axios.get<IPaginatedUsers>(url);
 };
 
 export const deleteSongAPI = (id: string) => {
@@ -59,6 +59,7 @@ export const createSongAPI = (payload: {
   spotifyUrl: string;
   lyrics: string;
   audioUrl: string;
+  category: string;
 }) => {
   const url = "/songs";
   return axios.post(url, payload);

@@ -57,6 +57,10 @@ declare global {
     items: ISong[];
     meta: IPaginationMeta;
   }
+  export interface IPaginatedUsers {
+    items: IUserTable[];
+    meta: IPaginationMeta;
+  }
   export interface IScore {
     id: string;
     audioUrl: string;
@@ -93,5 +97,14 @@ declare global {
     results: IYoutubeResult[];
     nextPageToken: string;
     prevPageToken: string;
+  }
+  interface IUserTable {
+    id: string;
+    displayName: string;
+    adminSecret: string;
+    email: string;
+    password: string;
+    imageUrl: string;
+    createdAt: Date;
   }
 }
