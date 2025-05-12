@@ -64,18 +64,6 @@ const TableSongs = () => {
         placeholder: "",
       },
     },
-    {
-      title: "Release Date",
-      dataIndex: "releasedDate",
-      valueType: "date",
-      fieldProps: {
-        placeholder: "",
-      },
-    },
-    {
-      title: "Category",
-      dataIndex: "category",
-    },
 
     {
       title: "Action",
@@ -137,10 +125,7 @@ const TableSongs = () => {
           if (params) {
             query += `page=${params.current}&limit=${params.pageSize}`;
             if (params.title) {
-              query += `&mainText=/${params.title}/i`;
-            }
-            if (params.category) {
-              query += `&brand=/${params.category}/i`;
+              query += `&title=/${params.title}/i`;
             }
           }
           if (sort && sort.createdAt) {

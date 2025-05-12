@@ -29,7 +29,7 @@ declare global {
     password: string;
   }
   interface ILogin {
-    access_token: string;
+    accessToken: string;
   }
   export interface IFetchUser {
     userId: string;
@@ -40,18 +40,10 @@ declare global {
   export interface ISong {
     id: string;
     title: string;
-    albumTitle: string;
-    imageUrl: string;
-    releasedDate: Date;
-    duration: number;
-    youtubeUrl: string;
-    spotifyUrl: string;
-    artistIds: string[];
-    playlistIds: string[];
-    scoreIds: string[];
-    lyrics: string;
     category: string;
-    audioUrl: string;
+    songUrl: string;
+    artists: string[];
+    playlists: string[];
   }
   export interface IPaginatedSongs {
     items: ISong[];
