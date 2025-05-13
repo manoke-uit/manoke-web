@@ -11,6 +11,7 @@ import { FaArtstation, FaUserCircle } from "react-icons/fa";
 import { CiMusicNote1 } from "react-icons/ci";
 import { FaUserEdit } from "react-icons/fa";
 import { BiCategory } from "react-icons/bi";
+import { CiMicrophoneOn } from "react-icons/ci";
 const AdminLayout: React.FC = () => {
   const { Header, Sider, Content, Footer } = Layout;
   const navigate = useNavigate();
@@ -70,6 +71,11 @@ const AdminLayout: React.FC = () => {
               key: "5",
               icon: <BiCategory />,
               label: <Link to="/genres">Genres</Link>,
+            },
+            {
+              key: "6",
+              icon: <CiMicrophoneOn />,
+              label: <Link to="/karaoke">Karaokes</Link>,
             },
           ]}
         />

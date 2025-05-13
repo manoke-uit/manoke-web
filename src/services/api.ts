@@ -7,10 +7,10 @@ export const fetchAccountAPI = () => {
   const url = `/profile`;
   return axios.get<IFetchUser>(url);
 };
-export const getAllSongs = (query: string) => {
-  const url = `/songs?${query}`;
-  return axios.get<IPaginatedSongs>(url);
+export const getAllSongs = () => {
+  return axios.get("/songs");
 };
+
 export const logoutAPI = () => {
   const urlBackend = `/logout`;
   return axios.post<{ message: string }>(urlBackend);
@@ -35,9 +35,8 @@ export const deleteUserAPI = (id: string) => {
   const url = `/users/${id}`;
   return axios.delete<IRegister>(url);
 };
-export const getAllUsersAPI = (query: string) => {
-  const url = `/users/${query}`;
-  return axios.get<IPaginatedUsers>(url);
+export const getAllUsersAPI = (params: Record<string, any>) => {
+  return axios.get("/users", { params });
 };
 
 export const deleteSongAPI = (id: string) => {
@@ -49,13 +48,12 @@ export const getCategories = () => {
   return axios.get<IPaginatedSongs>(url);
 };
 
-export const createSongAPI = (payload: {
-  title: string;
-  lyrics: string;
-  songUrl: string;
-}) => {
-  const url = "/songs";
-  return axios.post(url, payload);
+export const createSongAPI = (formData: FormData) => {
+  return axios.post("/songs", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
 };
 
 export const updateSongAPI = (
@@ -74,4 +72,28 @@ export const updateSongAPI = (
 ) => {
   const url = `/songs/${id}`;
   return axios.patch(url, payload);
+};
+export const assignArtistToSong = (songId: string, artistId: string) => {
+  return axios.get(`/songs/artists/${songId}`, {
+    params: { artistId },
+  });
+};
+export const createArtistAPI = (payload: ICreateArtistPayload) => {
+  return axios.post("/artists", payload);
+};
+export const getAllArtistsAPI = (page: number) => {
+  return axios.get("/artists", {
+    params: { page },
+  });
+};
+
+export const createGenreAPI = (payload: {
+  name: string;
+  songIds: string[];
+}) => {
+  return axios.post("/genres", payload);
+};
+
+export const getAllGenresAPI = () => {
+  return axios.get("/genres");
 };

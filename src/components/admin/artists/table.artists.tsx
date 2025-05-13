@@ -1,4 +1,3 @@
-import { dateRangeValidate } from "@/services/helper";
 import {
   CloudUploadOutlined,
   DeleteTwoTone,
@@ -7,10 +6,10 @@ import {
 } from "@ant-design/icons";
 import type { ActionType, ProColumns } from "@ant-design/pro-components";
 import { ProTable } from "@ant-design/pro-components";
-import { App, Button, message, notification, Popconfirm } from "antd";
-import { useEffect, useRef, useState } from "react";
+import { Button, message, notification, Popconfirm } from "antd";
+import { useRef, useState } from "react";
 
-import { getAllSongs } from "@/services/api";
+import { getAllArtistsAPI, deleteSongAPI } from "@/services/api";
 import CreateArtists from "./create.artists";
 import UpdateArtists from "../songs/update.songs";
 
@@ -21,32 +20,23 @@ type TSearch = {
 
 const TableArtists = () => {
   const actionRef = useRef<ActionType | undefined>(undefined);
-  const [shoesTable, setShoesTable] = useState<ISong[]>([]);
   const [isDeleteUser, setIsDeleteUser] = useState(false);
   const [openModalUpdate, setOpenModalUpdate] = useState<boolean>(false);
   const [dataUpdate, setDataUpdate] = useState<ISong | null>(null);
   const [openModalCreate, setOpenModalCreate] = useState<boolean>(false);
-  const [meta, setMeta] = useState<IPaginationMeta>({
-    totalItems: 0,
-    itemCount: 0,
-    itemsPerPage: 5,
-    totalPages: 0,
-    currentPage: 1,
-  });
-  // const handleDeleteShoes = async (_id: string) => {
-  //   setIsDeleteUser(true);
-  //   const res = await d(_id);
-  //   if (res && res.data) {
-  //     message.success("Xóa user thành công");
-  //     refreshTable();
-  //   } else {
-  //     notification.error({
-  //       message: "Đã có lỗi xảy ra",
-  //       description: res.message,
-  //     });
-  //   }
-  //   setIsDeleteUser(false);
-  // };
+
+  const handleDeleteSong = async (id: string) => {
+    setIsDeleteUser(true);
+    const res = await deleteSongAPI(id);
+    if (res) {
+      message.success("Xóa bài hát thành công");
+      refreshTable();
+    } else {
+      notification.error({ message: "Đã có lỗi xảy ra" });
+    }
+    setIsDeleteUser(false);
+  };
+
   const columns: ProColumns<ISong>[] = [
     {
       dataIndex: "index",
@@ -59,17 +49,13 @@ const TableArtists = () => {
       hideInSearch: true,
     },
     {
-      title: "Song Name",
-      dataIndex: "title",
-      fieldProps: {
-        placeholder: "",
-      },
+      title: "Name",
+      dataIndex: "name",
     },
-
     {
       title: "Action",
       hideInSearch: true,
-      render: (dom, entity) => (
+      render: (_, entity) => (
         <>
           <EditTwoTone
             twoToneColor="#f57800"
@@ -83,7 +69,7 @@ const TableArtists = () => {
             placement="leftTop"
             title={"Xác nhận xóa bài hát"}
             description={"Bạn có chắc chắn muốn xóa bài hát này ?"}
-            // onConfirm={() => handleDeleteShoes(entity.id)}
+            onConfirm={() => handleDeleteSong(entity.id)}
             okText="Xác nhận"
             cancelText="Hủy"
             okButtonProps={{ loading: isDeleteUser }}
@@ -110,50 +96,28 @@ const TableArtists = () => {
         columns={columns}
         actionRef={actionRef}
         cardBordered
-        // pagination={{
-        //   current: meta.currentPage,
-        //   pageSize: meta.itemsPerPage,
-        //   showSizeChanger: true,
-        //   total: meta.totalPages,
-        //   showTotal: (total, range) => (
-        //     <div>
-        //       {range[0]}-{range[1]} trên {total} rows
-        //     </div>
-        //   ),
-        // }}
-        request={async (params, sort, filter) => {
-          let query = "";
-          if (params) {
-            query += `page=${params.current}&limit=${params.pageSize}`;
-            if (params.title) {
-              query += `&title=/${params.title}/i`;
-            }
-          }
-          if (sort && sort.createdAt) {
-            query += `&sort=${
-              sort.createdAt === "ascend" ? "createdAt" : "-createdAt"
-            }`;
-          } else query += `&sort=-createdAt`;
-          const res = await getAllSongs(query);
-          if (res) {
-            setShoesTable(res.items);
-            setMeta(res.meta);
-          }
+        search={false}
+        pagination={{
+          pageSize: 10,
+          showQuickJumper: true,
+        }}
+        request={async (params) => {
+          const currentPage = params.current || 1;
+          const res = await getAllArtistsAPI(currentPage);
           return {
-            data: res.items,
-            page: 1,
+            data: res.items || [],
             success: true,
-            total: res.meta.totalPages,
+            total: res.meta?.totalItems || 0,
           };
         }}
-        headerTitle="Table user"
+        headerTitle="Danh sách bài hát theo nghệ sĩ"
         toolBarRender={() => [
           <Button
             key="import"
             icon={<CloudUploadOutlined />}
             type="primary"
             onClick={() => {
-              console.log("Import user data");
+              console.log("Import artist data");
             }}
           >
             Import

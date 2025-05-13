@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
-import { App, Divider, Form, Input, Modal, Select, DatePicker } from "antd";
+import { useState } from "react";
+import { App, Divider, Form, Input, Modal, Upload, Button } from "antd";
 import type { FormProps } from "antd";
-import { createSongAPI, getCategories } from "@/services/api";
-import dayjs from "dayjs";
+import { UploadOutlined } from "@ant-design/icons";
+import { createSongAPI } from "@/services/api";
 
 interface IProps {
   openModalCreate: boolean;
@@ -12,8 +12,8 @@ interface IProps {
 
 type FieldType = {
   title: string;
-  songUrl: string;
   lyrics: string;
+  file: File;
 };
 
 const CreateSongs = (props: IProps) => {
@@ -21,38 +21,39 @@ const CreateSongs = (props: IProps) => {
   const [form] = Form.useForm();
   const { message, notification } = App.useApp();
   const [isSubmit, setIsSubmit] = useState(false);
-
-  useEffect(() => {
-    const fetchCategory = async () => {
-      const res = await getCategories();
-      if (res) {
-        const d = res.items.map((item) => ({ label: item, value: item }));
-        // setListCategory(d);
-      }
-    };
-    fetchCategory();
-  }, []);
+  const [file, setFile] = useState<File | null>(null);
 
   const onFinish: FormProps<FieldType>["onFinish"] = async (values) => {
-    const { title, songUrl, lyrics } = values;
+    if (!file) {
+      message.warning("Vui lòng chọn file bài hát");
+      return;
+    }
 
-    const payload = {
-      title,
-      songUrl,
-      lyrics,
-    };
+    const formData = new FormData();
+    formData.append("title", values.title);
+    formData.append("lyrics", values.lyrics);
+    formData.append("file", file);
 
     setIsSubmit(true);
-    const res = await createSongAPI(payload);
-    if (res && res.data) {
-      message.success("Tạo bài hát thành công!");
-      form.resetFields();
-      setOpenModalCreate(false);
-      refreshTable();
-    } else {
+    try {
+      const res = await createSongAPI(formData);
+
+      if (res && res.data) {
+        message.success("Tạo bài hát thành công!");
+        form.resetFields();
+        setFile(null);
+        setOpenModalCreate(false);
+        refreshTable();
+      } else {
+        notification.error({
+          message: "Tạo thất bại",
+          description: "Không nhận được songUrl",
+        });
+      }
+    } catch (err) {
       notification.error({
         message: "Tạo thất bại",
-        description: res?.message || "Lỗi không xác định",
+        description: "Lỗi trong quá trình gửi dữ liệu",
       });
     }
     setIsSubmit(false);
@@ -67,6 +68,7 @@ const CreateSongs = (props: IProps) => {
         onCancel={() => {
           setOpenModalCreate(false);
           form.resetFields();
+          setFile(null);
         }}
         okText="Tạo mới"
         cancelText="Hủy"
@@ -85,26 +87,28 @@ const CreateSongs = (props: IProps) => {
             name="title"
             rules={[{ required: true }]}
           >
-            {" "}
-            <Input />{" "}
+            <Input />
           </Form.Item>
 
           <Form.Item<FieldType>
-            label="Link bài hát"
-            name="songUrl"
-            rules={[{ required: true }]}
-          >
-            {" "}
-            <Input />{" "}
-          </Form.Item>
-
-          <Form.Item<FieldType>
-            label="Lyrics"
+            label="Lời bài hát"
             name="lyrics"
             rules={[{ required: true }]}
           >
-            {" "}
-            <Input.TextArea rows={4} />{" "}
+            <Input.TextArea rows={4} />
+          </Form.Item>
+
+          <Form.Item label="File bài hát" required>
+            <Upload
+              beforeUpload={(file) => {
+                setFile(file);
+                return false;
+              }}
+              maxCount={1}
+              accept="audio/*"
+            >
+              <Button icon={<UploadOutlined />}>Chọn file</Button>
+            </Upload>
           </Form.Item>
         </Form>
       </Modal>

@@ -8,8 +8,8 @@ interface IProps {
   openModalUpdate: boolean;
   setOpenModalUpdate: (v: boolean) => void;
   refreshTable: () => void;
-  setDataUpdate: (v: ISong | null) => void;
-  dataUpdate: ISong | null;
+  setDataUpdate: (v: IGenre | null) => void;
+  dataUpdate: IGenre | null;
 }
 
 type FieldType = {

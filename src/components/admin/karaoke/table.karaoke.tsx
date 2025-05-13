@@ -1,5 +1,3 @@
-import { deleteUserAPI, getAllUsersAPI } from "@/services/api";
-import { dateRangeValidate } from "@/services/helper";
 import {
   CloudUploadOutlined,
   DeleteTwoTone,
@@ -8,29 +6,30 @@ import {
 } from "@ant-design/icons";
 import type { ActionType, ProColumns } from "@ant-design/pro-components";
 import { ProTable } from "@ant-design/pro-components";
-import { App, Button, message, notification, Popconfirm } from "antd";
+import { Button, message, notification, Popconfirm } from "antd";
 import { useRef, useState } from "react";
-import CreateUser from "./create.user";
-import UpdateUser from "./update.user";
+
+import { getAllSongs, deleteSongAPI } from "@/services/api";
+
+import CreateKaraokes from "./create.karaoke";
+import UpdateKaraokes from "./update.karaoke";
 
 type TSearch = {
-  displayName: string;
-  email: string;
-  createdAtRange: string;
+  title?: string;
 };
 
-const TableUser = () => {
+const TableSongs = () => {
   const actionRef = useRef<ActionType | undefined>(undefined);
-  const [openModalUpdate, setOpenModalUpdate] = useState(false);
-  const [dataUpdate, setDataUpdate] = useState<IUserTable | null>(null);
-  const [openModalCreate, setOpenModalCreate] = useState(false);
   const [isDeleteUser, setIsDeleteUser] = useState(false);
+  const [openModalUpdate, setOpenModalUpdate] = useState(false);
+  const [dataUpdate, setDataUpdate] = useState<ISong | null>(null);
+  const [openModalCreate, setOpenModalCreate] = useState(false);
 
-  const handleDeleteUser = async (id: string) => {
+  const handleDeleteSong = async (id: string) => {
     setIsDeleteUser(true);
-    const res = await deleteUserAPI(id);
+    const res = await deleteSongAPI(id);
     if (res) {
-      message.success("Xóa user thành công");
+      message.success("Xóa bài hát thành công");
       refreshTable();
     } else {
       notification.error({ message: "Đã có lỗi xảy ra" });
@@ -38,7 +37,7 @@ const TableUser = () => {
     setIsDeleteUser(false);
   };
 
-  const columns: ProColumns<IUserTable>[] = [
+  const columns: ProColumns<ISong>[] = [
     {
       dataIndex: "index",
       valueType: "indexBorder",
@@ -50,29 +49,8 @@ const TableUser = () => {
       hideInSearch: true,
     },
     {
-      title: "Display Name",
-      dataIndex: "displayName",
-    },
-    {
-      title: "Email",
-      dataIndex: "email",
-      copyable: true,
-    },
-    {
-      title: "Created At",
-      dataIndex: "createdAt",
-      valueType: "date",
-      sorter: true,
-      hideInSearch: true,
-    },
-    {
-      title: "Created At",
-      dataIndex: "createdAtRange",
-      valueType: "dateRange",
-      hideInTable: true,
-      fieldProps: {
-        placeholder: ["Start date", "End date"],
-      },
+      title: "Song Name",
+      dataIndex: "title",
     },
     {
       title: "Action",
@@ -89,9 +67,9 @@ const TableUser = () => {
           />
           <Popconfirm
             placement="leftTop"
-            title={"Xác nhận xóa user"}
-            description={"Bạn có chắc chắn muốn xóa user này ?"}
-            onConfirm={() => handleDeleteUser(entity.id)}
+            title={"Xác nhận xóa bài hát"}
+            description={"Bạn có chắc chắn muốn xóa bài hát này ?"}
+            onConfirm={() => handleDeleteSong(entity.id)}
             okText="Xác nhận"
             cancelText="Hủy"
             okButtonProps={{ loading: isDeleteUser }}
@@ -114,46 +92,27 @@ const TableUser = () => {
 
   return (
     <>
-      <ProTable<IUserTable, TSearch>
+      <ProTable<ISong, TSearch>
         columns={columns}
         actionRef={actionRef}
         cardBordered
-        request={async (params, sort) => {
-          const queryParams: any = {
-            page: params.current,
-            limit: params.pageSize,
-          };
-
-          if (params.email) {
-            queryParams.email = `/${params.email}/i`;
-          }
-          if (params.displayName) {
-            queryParams.fullName = `/${params.displayName}/i`;
-          }
-          const createDateRange = dateRangeValidate(params.createdAtRange);
-          if (createDateRange) {
-            queryParams["createdAt>="] = createDateRange[0];
-            queryParams["createdAt<="] = createDateRange[1];
-          }
-
-          queryParams.sort =
-            sort?.createdAt === "ascend" ? "createdAt" : "-createdAt";
-
-          const res = await getAllUsersAPI(queryParams);
+        search={false}
+        pagination={false}
+        request={async () => {
+          const res = await getAllSongs();
           return {
-            data: res.items,
+            data: res.data || [],
             success: true,
-            total: res.meta.totalItems,
           };
         }}
-        headerTitle="Table user"
+        headerTitle="Danh sách bài hát"
         toolBarRender={() => [
           <Button
             key="import"
             icon={<CloudUploadOutlined />}
             type="primary"
             onClick={() => {
-              console.log("Import user data");
+              console.log("Import song data");
             }}
           >
             Import
@@ -170,20 +129,20 @@ const TableUser = () => {
           </Button>,
         ]}
       />
-      <CreateUser
+      <CreateKaraokes
         openModalCreate={openModalCreate}
         setOpenModalCreate={setOpenModalCreate}
         refreshTable={refreshTable}
       />
-      <UpdateUser
+      <UpdateKaraokes
         openModalUpdate={openModalUpdate}
         setOpenModalUpdate={setOpenModalUpdate}
         refreshTable={refreshTable}
-        setDataUpdate={setDataUpdate}
         dataUpdate={dataUpdate}
+        setDataUpdate={setDataUpdate}
       />
     </>
   );
 };
 
-export default TableUser;
+export default TableSongs;

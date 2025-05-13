@@ -42,6 +42,10 @@ const router = createBrowserRouter([
         path: "genres",
         element: <Genres />,
       },
+      {
+        path: "karaoke",
+        element: <Genres />,
+      },
     ],
   },
 ]);

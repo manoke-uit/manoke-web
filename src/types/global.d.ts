@@ -99,4 +99,14 @@ declare global {
     imageUrl: string;
     createdAt: Date;
   }
+  export interface ICreateArtistPayload {
+    name: string;
+    imageUrl: string;
+    songIds: string[];
+  }
+  export interface IGenre {
+    id: string;
+    name: string;
+    songs: string[];
+  }
 }
