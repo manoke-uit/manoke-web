@@ -21,7 +21,7 @@ const AdminDashboard = () => {
   return (
     <Row gutter={[40, 40]}>
       <Col span={8}>
-        <Card title="" bordered={false}>
+        <Card title="">
           <Statistic
             title="Tổng Users"
             value={dataDashboard.countUser}
@@ -30,12 +30,12 @@ const AdminDashboard = () => {
         </Card>
       </Col>
       <Col span={8}>
-        <Card title="" bordered={false}>
+        <Card title="">
           {/* <Statistic title="Tổng Đơn hàng" value={dataDashboard.countOrder} precision={2} formatter={formatter} /> */}
         </Card>
       </Col>
       <Col span={8}>
-        <Card title="" bordered={false}>
+        <Card title="">
           {/* <Statistic title="Tổng Books" value={dataDashboard.countBook} precision={2} formatter={formatter} /> */}
         </Card>
       </Col>

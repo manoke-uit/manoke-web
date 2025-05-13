@@ -5,13 +5,14 @@ import { App, ConfigProvider } from "antd";
 import AdminLayout from "./components/layout/layout.admin";
 import Dashboard from "./pages/admin/dashboard";
 import Users from "./pages/admin/users";
-
+import "@ant-design/v5-patch-for-react-19";
 import enUS from "antd/es/locale/en_US";
 import { AppProvider } from "./components/context/app.context";
 import LoginPage from "./pages/admin/login";
 import Songs from "./pages/admin/songs";
 import Artists from "./pages/admin/artists";
 import Genres from "./pages/admin/genres";
+import Karaoke from "./pages/admin/karaoke";
 
 const router = createBrowserRouter([
   {
@@ -44,7 +45,7 @@ const router = createBrowserRouter([
       },
       {
         path: "karaoke",
-        element: <Genres />,
+        element: <Karaoke />,
       },
     ],
   },

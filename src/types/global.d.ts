@@ -104,9 +104,28 @@ declare global {
     imageUrl: string;
     songIds: string[];
   }
+  export interface IArtists {
+    id: string;
+    name: string;
+    imageUrl: string;
+    songIds: string[];
+  }
   export interface IGenre {
     id: string;
     name: string;
     songs: string[];
+  }
+  export interface IKaraoke {
+    id: string;
+    description: string;
+    videoUrl: string;
+    createdAt: Date;
+    song: {
+      id: string;
+      title: string;
+      lyrics: string;
+      songUrl: string;
+    };
+    userId: string;
   }
 }

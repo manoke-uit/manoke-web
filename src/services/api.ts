@@ -24,12 +24,12 @@ export const createUserAPI = (
   return axios.post<IRegister>(url, { email, password, name });
 };
 export const updateUserAPI = (
+  id: string,
   email: string,
-  password: string,
-  name: string
+  displayName: string
 ) => {
-  const url = `/users`;
-  return axios.patch<IRegister>(url, { email, password, name });
+  const url = `/users/${id}`;
+  return axios.patch<IRegister>(url, { email, displayName });
 };
 export const deleteUserAPI = (id: string) => {
   const url = `/users/${id}`;
@@ -56,23 +56,6 @@ export const createSongAPI = (formData: FormData) => {
   });
 };
 
-export const updateSongAPI = (
-  id: string,
-  payload: Partial<{
-    title: string;
-    youtubeUrl: string;
-    albumTitle: string;
-    imageUrl: string;
-    releasedDate: string;
-    duration: number;
-    spotifyUrl: string;
-    lyrics: string;
-    audioUrl: string;
-  }>
-) => {
-  const url = `/songs/${id}`;
-  return axios.patch(url, payload);
-};
 export const assignArtistToSong = (songId: string, artistId: string) => {
   return axios.get(`/songs/artists/${songId}`, {
     params: { artistId },
@@ -96,4 +79,68 @@ export const createGenreAPI = (payload: {
 
 export const getAllGenresAPI = () => {
   return axios.get("/genres");
+};
+export const updateSongAPI = (
+  id: string,
+  title: string,
+  lyrics: string,
+  songUrl: string
+) => {
+  const url = `/songs/${id}`;
+  return axios.patch(url, {
+    title,
+    lyrics,
+    songUrl,
+  });
+};
+export const updateArtistAPI = (
+  id: string,
+  name: string,
+  imageUrl: string,
+  songIds: string[]
+) => {
+  const url = `/artists/${id}`;
+  return axios.patch(url, {
+    name,
+    imageUrl,
+    songIds,
+  });
+};
+export const deleteArtistAPI = (id: string) => {
+  return axios.delete(`/artists/${id}`);
+};
+export const updateGenreAPI = (id: string, name: string, songIds: string[]) => {
+  return axios.patch(`/genres/${id}`, {
+    name,
+    songIds,
+  });
+};
+
+export const deleteGenreAPI = (id: string) => {
+  return axios.delete(`/genres/${id}`);
+};
+export const createKaraokeAPI = (formData: FormData) => {
+  return axios.post("/karaokes/admin", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+};
+export const getAllKaraokesAPI = () => {
+  return axios.get("/karaokes");
+};
+export const updateKaraokeAPI = (
+  id: string,
+  description: string,
+  videoUrl: string,
+  songId: string
+) => {
+  return axios.patch(`/karaokes/${id}`, {
+    description,
+    videoUrl,
+    songId,
+  });
+};
+export const deleteKaraokeAPI = (id: string) => {
+  return axios.delete(`/karaokes/${id}`);
 };

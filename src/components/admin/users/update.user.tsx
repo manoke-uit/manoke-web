@@ -12,126 +12,102 @@ interface IProps {
 }
 
 type FieldType = {
-  _id: string;
+  id: string;
   email: string;
-  fullName: string;
-  phone: string;
+  displayName: string;
 };
 
-const UpdateUser = (props: IProps) => {
-  const {
-    openModalUpdate,
-    setOpenModalUpdate,
-    refreshTable,
-    setDataUpdate,
-    dataUpdate,
-  } = props;
-  const [isSubmit, setIsSubmit] = useState<boolean>(false);
+const UpdateUser = ({
+  openModalUpdate,
+  setOpenModalUpdate,
+  refreshTable,
+  setDataUpdate,
+  dataUpdate,
+}: IProps) => {
+  const [isSubmit, setIsSubmit] = useState(false);
   const { message, notification } = App.useApp();
-
-  // https://ant.design/components/form#components-form-demo-control-hooks
   const [form] = Form.useForm();
 
   useEffect(() => {
     if (dataUpdate) {
       form.setFieldsValue({
-        _id: dataUpdate._id,
-        fullName: dataUpdate.fullName,
+        id: dataUpdate.id,
         email: dataUpdate.email,
-        phone: dataUpdate.phone,
+        displayName: dataUpdate.displayName,
       });
     }
   }, [dataUpdate]);
 
   const onFinish: FormProps<FieldType>["onFinish"] = async (values) => {
-    const { _id, fullName, phone } = values;
+    const { id, displayName, email } = values;
     setIsSubmit(true);
-    const res = await updateUserAPI(_id, fullName, phone);
-    if (res && res.data) {
-      message.success("Cập nhật user thành công");
-      form.resetFields();
-      setOpenModalUpdate(false);
-      setDataUpdate(null);
-      refreshTable();
-    } else {
+    try {
+      const res = await updateUserAPI(id, email, displayName);
+      if (res) {
+        message.success("Cập nhật người dùng thành công");
+        form.resetFields();
+        setOpenModalUpdate(false);
+        setDataUpdate(null);
+        refreshTable();
+      } else {
+        throw new Error("Cập nhật thất bại");
+      }
+    } catch (error: any) {
       notification.error({
         message: "Đã có lỗi xảy ra",
-        description: res.message,
+        description: error.message,
       });
+    } finally {
+      setIsSubmit(false);
     }
-    setIsSubmit(false);
   };
 
   return (
-    <>
-      <Modal
-        title="Cập nhật người dùng"
-        open={openModalUpdate}
-        onOk={() => {
-          form.submit();
-        }}
-        onCancel={() => {
-          setOpenModalUpdate(false);
-          setDataUpdate(null);
-          form.resetFields();
-        }}
-        okText={"Cập nhật"}
-        cancelText={"Hủy"}
-        confirmLoading={isSubmit}
+    <Modal
+      title="Cập nhật người dùng"
+      open={openModalUpdate}
+      onOk={() => form.submit()}
+      onCancel={() => {
+        setOpenModalUpdate(false);
+        setDataUpdate(null);
+        form.resetFields();
+      }}
+      okText="Cập nhật"
+      cancelText="Hủy"
+      confirmLoading={isSubmit}
+    >
+      <Divider />
+      <Form
+        form={form}
+        name="form-update"
+        onFinish={onFinish}
+        autoComplete="off"
+        layout="vertical"
       >
-        <Divider />
+        <Form.Item<FieldType> name="id" hidden>
+          <Input />
+        </Form.Item>
 
-        <Form
-          form={form}
-          name="form-update"
-          style={{ maxWidth: 600 }}
-          onFinish={onFinish}
-          autoComplete="off"
+        <Form.Item<FieldType>
+          label="Email"
+          name="email"
+          rules={[
+            { required: true, message: "Vui lòng nhập email!" },
+            { type: "email", message: "Email không đúng định dạng!" },
+          ]}
         >
-          <Form.Item<FieldType>
-            hidden
-            labelCol={{ span: 24 }}
-            label="_id"
-            name="_id"
-            rules={[{ required: true, message: "Vui lòng nhập _id!" }]}
-          >
-            <Input disabled />
-          </Form.Item>
+          <Input disabled />
+        </Form.Item>
 
-          <Form.Item<FieldType>
-            labelCol={{ span: 24 }}
-            label="Email"
-            name="email"
-            rules={[
-              { required: true, message: "Vui lòng nhập email!" },
-              { type: "email", message: "Email không đúng định dạng!" },
-            ]}
-          >
-            <Input disabled />
-          </Form.Item>
-
-          <Form.Item<FieldType>
-            labelCol={{ span: 24 }}
-            label="Tên hiển thị"
-            name="fullName"
-            rules={[{ required: true, message: "Vui lòng nhập tên hiển thị!" }]}
-          >
-            <Input />
-          </Form.Item>
-
-          <Form.Item<FieldType>
-            labelCol={{ span: 24 }}
-            label="Số điện thoại"
-            name="phone"
-            rules={[
-              { required: true, message: "Vui lòng nhập số điện thoại!" },
-            ]}
-          >
-            <Input />
-          </Form.Item>
-        </Form>
-      </Modal>
-    </>
+        <Form.Item<FieldType>
+          label="Tên hiển thị"
+          name="displayName"
+          rules={[{ required: true, message: "Vui lòng nhập tên hiển thị!" }]}
+        >
+          <Input />
+        </Form.Item>
+      </Form>
+    </Modal>
   );
 };
 

@@ -1,7 +1,7 @@
-import TableGenres from "@/components/admin/genres/table.genres";
+import TableKaraokes from "@/components/admin/karaoke/table.karaoke";
 
 const Karaoke = () => {
-  return <TableGenres />;
+  return <TableKaraokes />;
 };
 
 export default Karaoke;

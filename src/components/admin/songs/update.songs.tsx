@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { App, Divider, Form, Input, Modal, Select, DatePicker } from "antd";
 import type { FormProps } from "antd";
 import { updateSongAPI } from "@/services/api";
-import dayjs from "dayjs";
 
 interface IProps {
   openModalUpdate: boolean;
@@ -42,14 +41,10 @@ const UpdateSongs = (props: IProps) => {
     }
   }, [dataUpdate]);
   const onFinish: FormProps<FieldType>["onFinish"] = async (values) => {
-    const { id, title, lyrics } = values;
-    const payload = {
-      id,
-      title,
-      lyrics,
-    };
+    const { id, title, lyrics, songUrl } = values;
+
     setIsSubmit(true);
-    const res = await updateSongAPI(id, payload);
+    const res = await updateSongAPI(id, title, lyrics, songUrl);
     if (res) {
       message.success("Cập nhật bài hát thành công");
       form.resetFields();
@@ -85,6 +80,9 @@ const UpdateSongs = (props: IProps) => {
           autoComplete="off"
           layout="vertical"
         >
+          <Form.Item<FieldType> name="id" hidden>
+            <Input />
+          </Form.Item>
           <Form.Item<FieldType>
             label="Tên bài hát"
             name="title"

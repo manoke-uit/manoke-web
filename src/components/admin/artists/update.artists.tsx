@@ -1,28 +1,21 @@
 import { useEffect, useState } from "react";
-import { App, Divider, Form, Input, Modal, Select, DatePicker } from "antd";
+import { App, Divider, Form, Input, Modal, Select } from "antd";
 import type { FormProps } from "antd";
-import { updateSongAPI } from "@/services/api";
-import dayjs from "dayjs";
+import { updateArtistAPI } from "@/services/api";
 
 interface IProps {
   openModalUpdate: boolean;
   setOpenModalUpdate: (v: boolean) => void;
   refreshTable: () => void;
-  setDataUpdate: (v: ISong | null) => void;
-  dataUpdate: ISong | null;
+  setDataUpdate: (v: IArtists | null) => void;
+  dataUpdate: IArtists | null;
 }
 
 type FieldType = {
-  _id: string;
-  mainText: string;
-  brand: string;
-  price: number;
-  category: string;
-  releasedDate: any;
-  youtubeUrl: string;
-  spotifyUrl: string;
-  audioUrl: string;
-  lyrics: string;
+  id: string;
+  name: string;
+  imageUrl: string;
+  songIds: string[];
 };
 
 const UpdateArtists = (props: IProps) => {
@@ -37,122 +30,93 @@ const UpdateArtists = (props: IProps) => {
   const { message, notification } = App.useApp();
   const [form] = Form.useForm();
 
-  useEffect(() => {}, [dataUpdate]);
+  useEffect(() => {
+    console.log(dataUpdate);
+    if (dataUpdate) {
+      form.setFieldsValue({
+        id: dataUpdate.id,
+        name: dataUpdate.name,
+        imageUrl: dataUpdate.imageUrl,
+        songIds: dataUpdate.songIds,
+      });
+    }
+  }, [dataUpdate]);
 
   const onFinish: FormProps<FieldType>["onFinish"] = async (values) => {
-    const {
-      _id,
-      mainText,
-      brand,
-      price,
-      category,
-      releasedDate,
-      youtubeUrl,
-      spotifyUrl,
-      audioUrl,
-      lyrics,
-    } = values;
-    const payload = {
-      title: mainText,
-      albumTitle: brand,
-      duration: price,
-      category,
-      releasedDate: releasedDate.format("YYYY-MM-DD"),
-      youtubeUrl,
-      spotifyUrl,
-      audioUrl,
-      lyrics,
-    };
+    const { id, name, imageUrl, songIds } = values;
     setIsSubmit(true);
-    const res = await updateSongAPI(_id, payload);
-    if (res) {
-      message.success("Cập nhật bài hát thành công");
-      form.resetFields();
-      setOpenModalUpdate(false);
-      setDataUpdate(null);
-      refreshTable();
-    } else {
-      notification.error({ message: "Đã có lỗi xảy ra" });
+    try {
+      const res = await updateArtistAPI(id, name, imageUrl, songIds);
+      if (res) {
+        message.success("Cập nhật nghệ sĩ thành công");
+        form.resetFields();
+        setOpenModalUpdate(false);
+        setDataUpdate(null);
+        refreshTable();
+      } else {
+        throw new Error("Cập nhật thất bại");
+      }
+    } catch (error: any) {
+      notification.error({
+        message: "Đã có lỗi xảy ra",
+        description: error.message,
+      });
+    } finally {
+      setIsSubmit(false);
     }
-    setIsSubmit(false);
   };
 
   return (
-    <>
-      <Modal
-        title="Cập nhật bài hát"
-        open={openModalUpdate}
-        onOk={() => form.submit()}
-        onCancel={() => {
-          setOpenModalUpdate(false);
-          setDataUpdate(null);
-          form.resetFields();
-        }}
-        okText="Cập nhật"
-        cancelText="Hủy"
-        confirmLoading={isSubmit}
+    <Modal
+      title="Cập nhật nghệ sĩ"
+      open={openModalUpdate}
+      onOk={() => form.submit()}
+      onCancel={() => {
+        setOpenModalUpdate(false);
+        setDataUpdate(null);
+        form.resetFields();
+      }}
+      okText="Cập nhật"
+      cancelText="Hủy"
+      confirmLoading={isSubmit}
+    >
+      <Divider />
+      <Form
+        form={form}
+        name="update-artist"
+        onFinish={onFinish}
+        autoComplete="off"
+        layout="vertical"
       >
-        <Divider />
-        <Form
-          form={form}
-          name="update-song"
-          onFinish={onFinish}
-          autoComplete="off"
-          layout="vertical"
+        <Form.Item<FieldType> name="id" hidden>
+          <Input />
+        </Form.Item>
+
+        <Form.Item<FieldType>
+          label="Tên nghệ sĩ"
+          name="name"
+          rules={[{ required: true }]}
         >
-          <Form.Item<FieldType> hidden name="_id" rules={[{ required: true }]}>
-            <Input />
-          </Form.Item>
-          <Form.Item<FieldType>
-            label="Tên bài hát"
-            name="mainText"
-            rules={[{ required: true }]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item<FieldType>
-            label="Album"
-            name="brand"
-            rules={[{ required: true }]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item<FieldType>
-            label="Thể loại"
-            name="category"
-            rules={[{ required: true }]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item<FieldType>
-            label="Thời lượng (phút)"
-            name="price"
-            rules={[{ required: true }]}
-          >
-            <Input type="number" />
-          </Form.Item>
-          <Form.Item<FieldType>
-            label="Ngày phát hành"
-            name="releasedDate"
-            rules={[{ required: true }]}
-          >
-            <DatePicker format="YYYY-MM-DD" style={{ width: "100%" }} />
-          </Form.Item>
-          <Form.Item<FieldType> label="YouTube URL" name="youtubeUrl">
-            <Input />
-          </Form.Item>
-          <Form.Item<FieldType> label="Spotify URL" name="spotifyUrl">
-            <Input />
-          </Form.Item>
-          <Form.Item<FieldType> label="Audio URL" name="audioUrl">
-            <Input />
-          </Form.Item>
-          <Form.Item<FieldType> label="Lyrics" name="lyrics">
-            <Input.TextArea rows={4} />
-          </Form.Item>
-        </Form>
-      </Modal>
-    </>
+          <Input />
+        </Form.Item>
+
+        <Form.Item<FieldType>
+          label="Hình ảnh"
+          name="imageUrl"
+          rules={[{ required: true }]}
+        >
+          <Input />
+        </Form.Item>
+
+        <Form.Item<FieldType>
+          label="Danh sách bài hát (ID)"
+          name="songIds"
+          rules={[{ required: true }]}
+        >
+          <Select mode="tags" placeholder="Nhập danh sách ID bài hát" />
+        </Form.Item>
+      </Form>
+    </Modal>
   );
 };
 

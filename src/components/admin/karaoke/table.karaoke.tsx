@@ -9,48 +9,55 @@ import { ProTable } from "@ant-design/pro-components";
 import { Button, message, notification, Popconfirm } from "antd";
 import { useRef, useState } from "react";
 
-import { getAllSongs, deleteSongAPI } from "@/services/api";
+import { deleteKaraokeAPI, getAllKaraokesAPI } from "@/services/api";
 
 import CreateKaraokes from "./create.karaoke";
 import UpdateKaraokes from "./update.karaoke";
 
 type TSearch = {
-  title?: string;
+  description?: string;
 };
 
-const TableSongs = () => {
+const TableKaraokes = () => {
   const actionRef = useRef<ActionType | undefined>(undefined);
-  const [isDeleteUser, setIsDeleteUser] = useState(false);
   const [openModalUpdate, setOpenModalUpdate] = useState(false);
-  const [dataUpdate, setDataUpdate] = useState<ISong | null>(null);
+  const [dataUpdate, setDataUpdate] = useState<IKaraoke | null>(null);
   const [openModalCreate, setOpenModalCreate] = useState(false);
-
-  const handleDeleteSong = async (id: string) => {
-    setIsDeleteUser(true);
-    const res = await deleteSongAPI(id);
+  const [isDeleteKaraoke, setIsDeleteKaraoke] = useState(false);
+  const handleDeleteKaraoke = async (id: string) => {
+    setIsDeleteKaraoke(true);
+    const res = await deleteKaraokeAPI(id);
     if (res) {
-      message.success("Xóa bài hát thành công");
+      message.success("Xóa user thành công");
       refreshTable();
     } else {
       notification.error({ message: "Đã có lỗi xảy ra" });
     }
-    setIsDeleteUser(false);
+    setIsDeleteKaraoke(false);
   };
-
-  const columns: ProColumns<ISong>[] = [
+  const columns: ProColumns<IKaraoke>[] = [
     {
       dataIndex: "index",
       valueType: "indexBorder",
       width: 48,
     },
     {
-      title: "Id",
+      title: "ID",
       dataIndex: "id",
       hideInSearch: true,
     },
     {
-      title: "Song Name",
-      dataIndex: "title",
+      title: "Video URL",
+      dataIndex: "videoUrl",
+    },
+    {
+      title: "Mô tả",
+      dataIndex: "description",
+    },
+    {
+      title: "Ngày tạo",
+      dataIndex: "createdAt",
+      valueType: "date",
     },
     {
       title: "Action",
@@ -67,12 +74,12 @@ const TableSongs = () => {
           />
           <Popconfirm
             placement="leftTop"
-            title={"Xác nhận xóa bài hát"}
-            description={"Bạn có chắc chắn muốn xóa bài hát này ?"}
-            onConfirm={() => handleDeleteSong(entity.id)}
+            title={"Xác nhận xóa user"}
+            description={"Bạn có chắc chắn muốn xóa user này ?"}
+            onConfirm={() => handleDeleteKaraoke(entity.id)}
             okText="Xác nhận"
             cancelText="Hủy"
-            okButtonProps={{ loading: isDeleteUser }}
+            okButtonProps={{ loading: isDeleteKaraoke }}
           >
             <span style={{ cursor: "pointer", marginLeft: 20 }}>
               <DeleteTwoTone
@@ -92,27 +99,27 @@ const TableSongs = () => {
 
   return (
     <>
-      <ProTable<ISong, TSearch>
+      <ProTable<IKaraoke, TSearch>
         columns={columns}
         actionRef={actionRef}
         cardBordered
         search={false}
-        pagination={false}
+        pagination={{ pageSize: 10 }}
         request={async () => {
-          const res = await getAllSongs();
+          const res = await getAllKaraokesAPI();
           return {
             data: res.data || [],
             success: true,
           };
         }}
-        headerTitle="Danh sách bài hát"
+        headerTitle="Danh sách karaoke"
         toolBarRender={() => [
           <Button
             key="import"
             icon={<CloudUploadOutlined />}
             type="primary"
             onClick={() => {
-              console.log("Import song data");
+              console.log("Import karaoke data");
             }}
           >
             Import
@@ -145,4 +152,4 @@ const TableSongs = () => {
   );
 };
 
-export default TableSongs;
+export default TableKaraokes;

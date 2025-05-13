@@ -9,49 +9,63 @@ import { ProTable } from "@ant-design/pro-components";
 import { Button, message, notification, Popconfirm } from "antd";
 import { useRef, useState } from "react";
 
-import { getAllArtistsAPI, deleteSongAPI } from "@/services/api";
-import CreateArtists from "./create.artists";
-import UpdateArtists from "../songs/update.songs";
+import { getAllArtistsAPI, deleteArtistAPI } from "@/services/api";
 
-type TSearch = {
-  title?: string;
-  category?: string;
-};
+import CreateArtists from "./create.artists";
+import UpdateArtists from "./update.artists";
+
+interface IArtist {
+  id: string;
+  name: string;
+  imageUrl: string;
+  songs: string[];
+}
 
 const TableArtists = () => {
   const actionRef = useRef<ActionType | undefined>(undefined);
-  const [isDeleteUser, setIsDeleteUser] = useState(false);
-  const [openModalUpdate, setOpenModalUpdate] = useState<boolean>(false);
-  const [dataUpdate, setDataUpdate] = useState<ISong | null>(null);
-  const [openModalCreate, setOpenModalCreate] = useState<boolean>(false);
+  const [isDeleteArtist, setIsDeleteArtist] = useState(false);
+  const [openModalUpdate, setOpenModalUpdate] = useState(false);
+  const [dataUpdate, setDataUpdate] = useState<IArtists | null>(null);
+  const [openModalCreate, setOpenModalCreate] = useState(false);
 
-  const handleDeleteSong = async (id: string) => {
-    setIsDeleteUser(true);
-    const res = await deleteSongAPI(id);
-    if (res) {
-      message.success("Xóa bài hát thành công");
-      refreshTable();
-    } else {
-      notification.error({ message: "Đã có lỗi xảy ra" });
+  const handleDeleteArtist = async (id: string) => {
+    setIsDeleteArtist(true);
+    try {
+      const res = await deleteArtistAPI(id);
+      if (res) {
+        message.success("Xóa nghệ sĩ thành công");
+        refreshTable();
+      }
+    } catch {
+      notification.error({ message: "Đã có lỗi xảy ra khi xóa nghệ sĩ" });
+    } finally {
+      setIsDeleteArtist(false);
     }
-    setIsDeleteUser(false);
   };
 
-  const columns: ProColumns<ISong>[] = [
+  const columns: ProColumns<IArtists>[] = [
     {
       dataIndex: "index",
       valueType: "indexBorder",
       width: 48,
     },
     {
-      title: "Id",
+      title: "ID",
       dataIndex: "id",
       hideInSearch: true,
     },
     {
-      title: "Name",
+      title: "Tên nghệ sĩ",
       dataIndex: "name",
     },
+    {
+      title: "Hình ảnh",
+      dataIndex: "imageUrl",
+      render: (_, entity) => (
+        <img src={entity.imageUrl} alt={entity.name} width={50} />
+      ),
+    },
+
     {
       title: "Action",
       hideInSearch: true,
@@ -67,18 +81,15 @@ const TableArtists = () => {
           />
           <Popconfirm
             placement="leftTop"
-            title={"Xác nhận xóa bài hát"}
-            description={"Bạn có chắc chắn muốn xóa bài hát này ?"}
-            onConfirm={() => handleDeleteSong(entity.id)}
+            title="Xác nhận xóa nghệ sĩ"
+            description="Bạn có chắc chắn muốn xóa nghệ sĩ này?"
+            onConfirm={() => handleDeleteArtist(entity.id)}
             okText="Xác nhận"
             cancelText="Hủy"
-            okButtonProps={{ loading: isDeleteUser }}
+            okButtonProps={{ loading: isDeleteArtist }}
           >
             <span style={{ cursor: "pointer", marginLeft: 20 }}>
-              <DeleteTwoTone
-                twoToneColor="#ff4d4f"
-                style={{ cursor: "pointer" }}
-              />
+              <DeleteTwoTone twoToneColor="#ff4d4f" />
             </span>
           </Popconfirm>
         </>
@@ -92,7 +103,7 @@ const TableArtists = () => {
 
   return (
     <>
-      <ProTable<ISong, TSearch>
+      <ProTable<IArtists>
         columns={columns}
         actionRef={actionRef}
         cardBordered
@@ -110,15 +121,13 @@ const TableArtists = () => {
             total: res.meta?.totalItems || 0,
           };
         }}
-        headerTitle="Danh sách bài hát theo nghệ sĩ"
+        headerTitle="Danh sách nghệ sĩ"
         toolBarRender={() => [
           <Button
             key="import"
             icon={<CloudUploadOutlined />}
             type="primary"
-            onClick={() => {
-              console.log("Import artist data");
-            }}
+            onClick={() => console.log("Import artist data")}
           >
             Import
           </Button>,
@@ -126,9 +135,7 @@ const TableArtists = () => {
             key="add"
             icon={<PlusOutlined />}
             type="primary"
-            onClick={() => {
-              setOpenModalCreate(true);
-            }}
+            onClick={() => setOpenModalCreate(true)}
           >
             Add new
           </Button>,
