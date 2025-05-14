@@ -44,7 +44,11 @@ const router = createBrowserRouter([
         element: <Genres />,
       },
       {
-        path: "karaoke",
+        path: "karaokes",
+        element: <Karaoke />,
+      },
+      {
+        path: "playlists",
         element: <Karaoke />,
       },
     ],

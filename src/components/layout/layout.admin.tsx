@@ -12,6 +12,7 @@ import { CiMusicNote1 } from "react-icons/ci";
 import { FaUserEdit } from "react-icons/fa";
 import { BiCategory } from "react-icons/bi";
 import { CiMicrophoneOn } from "react-icons/ci";
+import { PiPlaylistThin } from "react-icons/pi";
 const AdminLayout: React.FC = () => {
   const { Header, Sider, Content, Footer } = Layout;
   const navigate = useNavigate();
@@ -75,7 +76,12 @@ const AdminLayout: React.FC = () => {
             {
               key: "6",
               icon: <CiMicrophoneOn />,
-              label: <Link to="/karaoke">Karaokes</Link>,
+              label: <Link to="/karaokes">Karaokes</Link>,
+            },
+            {
+              key: "7",
+              icon: <PiPlaylistThin />,
+              label: <Link to="/playlists">Karaokes</Link>,
             },
           ]}
         />
