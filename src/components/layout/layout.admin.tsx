@@ -81,7 +81,7 @@ const AdminLayout: React.FC = () => {
             {
               key: "7",
               icon: <PiPlaylistThin />,
-              label: <Link to="/playlists">Karaokes</Link>,
+              label: <Link to="/playlists">Playlists</Link>,
             },
           ]}
         />

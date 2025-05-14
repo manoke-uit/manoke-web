@@ -128,4 +128,12 @@ declare global {
     };
     userId: string;
   }
+
+  interface IPlaylist {
+    id: string;
+    title: string;
+    imageUrl: string;
+    description: string;
+    isPublic: boolean;
+  }
 }

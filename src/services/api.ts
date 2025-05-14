@@ -144,3 +144,44 @@ export const updateKaraokeAPI = (
 export const deleteKaraokeAPI = (id: string) => {
   return axios.delete(`/karaokes/${id}`);
 };
+export const createPlaylistAPI = (
+  title: string,
+  imageUrl: string,
+  description: string,
+  isPublic: boolean,
+  userId: string,
+  songIds: string[]
+) => {
+  return axios.post("/playlists", {
+    title,
+    imageUrl,
+    description,
+    isPublic,
+    userId,
+    songIds,
+  });
+};
+export const getAllPlaylistsAPI = (page: number) => {
+  return axios.get(`/playlists`, {
+    params: { page },
+  });
+};
+export const deletePlaylistAPI = (id: string) => {
+  return axios.delete(`/playlists/${id}`);
+};
+export const updatePlaylistAPI = (
+  id: string,
+  title: string,
+  imageUrl: string,
+  description: string,
+  isPublic: boolean,
+  songIds: string[]
+) => {
+  return axios.patch(`/playlists/${id}`, {
+    title,
+    imageUrl,
+    description,
+    isPublic,
+    songIds,
+  });
+};

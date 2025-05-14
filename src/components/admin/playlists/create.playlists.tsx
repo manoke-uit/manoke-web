@@ -1,8 +1,8 @@
-import { useState } from "react";
-import { App, Divider, Form, Input, Modal, Upload, Button } from "antd";
+import { useEffect, useState } from "react";
+import { App, Divider, Form, Input, Modal, Select, Button, Switch } from "antd";
 import type { FormProps } from "antd";
-import { UploadOutlined } from "@ant-design/icons";
-import { createSongAPI } from "@/services/api";
+import { createPlaylistAPI, getAllSongs } from "@/services/api";
+import { useCurrentApp } from "@/components/context/app.context";
 
 interface IProps {
   openModalCreate: boolean;
@@ -12,8 +12,11 @@ interface IProps {
 
 type FieldType = {
   title: string;
-  lyrics: string;
-  file: File;
+  imageUrl: string;
+  description: string;
+  isPublic: boolean;
+  userId: string;
+  songIds: string[];
 };
 
 const CreatePlaylists = (props: IProps) => {
@@ -21,33 +24,55 @@ const CreatePlaylists = (props: IProps) => {
   const [form] = Form.useForm();
   const { message, notification } = App.useApp();
   const [isSubmit, setIsSubmit] = useState(false);
-  const [file, setFile] = useState<File | null>(null);
+  const [songOptions, setSongOptions] = useState<
+    { label: string; value: string }[]
+  >([]);
+
+  const { user } = useCurrentApp();
+  const userId = user?.userId;
+
+  useEffect(() => {
+    const fetchSongs = async () => {
+      try {
+        const res = await getAllSongs();
+        const options = res?.data?.map((song: any) => ({
+          label: song.title,
+          value: song.id,
+        }));
+        setSongOptions(options);
+      } catch {
+        notification.error({ message: "Không thể tải danh sách bài hát" });
+      }
+    };
+    fetchSongs();
+  }, []);
 
   const onFinish: FormProps<FieldType>["onFinish"] = async (values) => {
-    if (!file) {
-      message.warning("Vui lòng chọn file bài hát");
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append("title", values.title);
-    formData.append("lyrics", values.lyrics);
-    formData.append("file", file);
+    const payload = {
+      ...values,
+      userId,
+    };
 
     setIsSubmit(true);
     try {
-      const res = await createSongAPI(formData);
+      const res = await createPlaylistAPI(
+        payload.title,
+        payload.imageUrl,
+        payload.description,
+        payload.isPublic,
+        payload.userId!,
+        payload.songIds
+      );
 
       if (res && res.data) {
-        message.success("Tạo bài hát thành công!");
+        message.success("Tạo playlist thành công!");
         form.resetFields();
-        setFile(null);
         setOpenModalCreate(false);
         refreshTable();
       } else {
         notification.error({
           message: "Tạo thất bại",
-          description: "Không nhận được songUrl",
+          description: "Không nhận được phản hồi hợp lệ",
         });
       }
     } catch (err) {
@@ -60,59 +85,75 @@ const CreatePlaylists = (props: IProps) => {
   };
 
   return (
-    <>
-      <Modal
-        title="Thêm mới bài hát"
-        open={openModalCreate}
-        onOk={() => form.submit()}
-        onCancel={() => {
-          setOpenModalCreate(false);
-          form.resetFields();
-          setFile(null);
-        }}
-        okText="Tạo mới"
-        cancelText="Hủy"
-        confirmLoading={isSubmit}
+    <Modal
+      title="Tạo Playlist mới"
+      open={openModalCreate}
+      onOk={() => form.submit()}
+      onCancel={() => {
+        setOpenModalCreate(false);
+        form.resetFields();
+      }}
+      okText="Tạo mới"
+      cancelText="Hủy"
+      confirmLoading={isSubmit}
+    >
+      <Divider />
+      <Form
+        form={form}
+        name="create-playlist"
+        onFinish={onFinish}
+        autoComplete="off"
+        layout="vertical"
       >
-        <Divider />
-        <Form
-          form={form}
-          name="create-song"
-          onFinish={onFinish}
-          autoComplete="off"
-          layout="vertical"
+        <Form.Item<FieldType>
+          label="Tiêu đề"
+          name="title"
+          rules={[{ required: true, message: "Vui lòng nhập tiêu đề" }]}
         >
-          <Form.Item<FieldType>
-            label="Tên bài hát"
-            name="title"
-            rules={[{ required: true }]}
-          >
-            <Input />
-          </Form.Item>
+          <Input />
+        </Form.Item>
 
-          <Form.Item<FieldType>
-            label="Lời bài hát"
-            name="lyrics"
-            rules={[{ required: true }]}
-          >
-            <Input.TextArea rows={4} />
-          </Form.Item>
+        <Form.Item<FieldType>
+          label="Ảnh"
+          name="imageUrl"
+          rules={[{ required: true, message: "Vui lòng nhập URL ảnh" }]}
+        >
+          <Input />
+        </Form.Item>
 
-          <Form.Item label="File bài hát" required>
-            <Upload
-              beforeUpload={(file) => {
-                setFile(file);
-                return false;
-              }}
-              maxCount={1}
-              accept="audio/*"
-            >
-              <Button icon={<UploadOutlined />}>Chọn file</Button>
-            </Upload>
-          </Form.Item>
-        </Form>
-      </Modal>
-    </>
+        <Form.Item<FieldType>
+          label="Mô tả"
+          name="description"
+          rules={[{ required: true, message: "Vui lòng nhập mô tả" }]}
+        >
+          <Input.TextArea rows={3} />
+        </Form.Item>
+
+        <Form.Item<FieldType>
+          label="Công khai"
+          name="isPublic"
+          valuePropName="checked"
+        >
+          <Switch />
+        </Form.Item>
+
+        <Form.Item<FieldType>
+          label="Chọn bài hát"
+          name="songIds"
+          rules={[
+            { required: true, message: "Vui lòng chọn ít nhất 1 bài hát" },
+          ]}
+        >
+          <Select
+            mode="multiple"
+            placeholder="Chọn bài hát"
+            options={songOptions}
+            showSearch
+            optionFilterProp="label"
+          />
+        </Form.Item>
+      </Form>
+    </Modal>
   );
 };
 

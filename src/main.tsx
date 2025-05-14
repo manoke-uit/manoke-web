@@ -13,6 +13,7 @@ import Songs from "./pages/admin/songs";
 import Artists from "./pages/admin/artists";
 import Genres from "./pages/admin/genres";
 import Karaoke from "./pages/admin/karaoke";
+import Playlists from "./pages/admin/playlists";
 
 const router = createBrowserRouter([
   {
@@ -49,7 +50,7 @@ const router = createBrowserRouter([
       },
       {
         path: "playlists",
-        element: <Karaoke />,
+        element: <Playlists />,
       },
     ],
   },

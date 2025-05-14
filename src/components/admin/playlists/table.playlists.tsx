@@ -6,53 +6,75 @@ import {
 } from "@ant-design/icons";
 import type { ActionType, ProColumns } from "@ant-design/pro-components";
 import { ProTable } from "@ant-design/pro-components";
-import { Button, message, notification, Popconfirm } from "antd";
+import { Button, Image, message, notification, Popconfirm, Tag } from "antd";
 import { useRef, useState } from "react";
 
-import { getAllSongs, deleteSongAPI } from "@/services/api";
+import { getAllPlaylistsAPI, deletePlaylistAPI } from "@/services/api";
 import CreatePlaylists from "./create.playlists";
 import UpdatePlaylists from "./update.playlists";
 
-type TSearch = {
-  title?: string;
-};
-
 const TablePlaylists = () => {
   const actionRef = useRef<ActionType | undefined>(undefined);
-  const [isDeleteUser, setIsDeleteUser] = useState(false);
+  const [isDelete, setIsDelete] = useState(false);
   const [openModalUpdate, setOpenModalUpdate] = useState(false);
-  const [dataUpdate, setDataUpdate] = useState<ISong | null>(null);
+  const [dataUpdate, setDataUpdate] = useState<IPlaylist | null>(null);
   const [openModalCreate, setOpenModalCreate] = useState(false);
 
-  const handleDeleteSong = async (id: string) => {
-    setIsDeleteUser(true);
-    const res = await deleteSongAPI(id);
-    if (res) {
-      message.success("Xóa bài hát thành công");
-      refreshTable();
-    } else {
-      notification.error({ message: "Đã có lỗi xảy ra" });
-    }
-    setIsDeleteUser(false);
+  const refreshTable = () => {
+    actionRef.current?.reload();
   };
 
-  const columns: ProColumns<ISong>[] = [
+  const handleDelete = async (id: string) => {
+    setIsDelete(true);
+    const res = await deletePlaylistAPI(id);
+    if (res) {
+      message.success("Xóa playlist thành công");
+      refreshTable();
+    } else {
+      notification.error({ message: "Xóa playlist thất bại" });
+    }
+    setIsDelete(false);
+  };
+
+  const columns: ProColumns<IPlaylist>[] = [
     {
       dataIndex: "index",
       valueType: "indexBorder",
       width: 48,
     },
     {
-      title: "Id",
-      dataIndex: "id",
+      title: "Ảnh",
+      dataIndex: "imageUrl",
       hideInSearch: true,
+      render: (_, record) =>
+        record.imageUrl ? (
+          <Image src={record.imageUrl} width={60} height={40} />
+        ) : (
+          <Tag color="gray">Không có ảnh</Tag>
+        ),
     },
     {
-      title: "Song Name",
+      title: "Tên Playlist",
       dataIndex: "title",
     },
     {
-      title: "Action",
+      title: "Mô tả",
+      dataIndex: "description",
+      hideInSearch: true,
+    },
+    {
+      title: "Trạng thái",
+      dataIndex: "isPublic",
+      hideInSearch: true,
+      render: (_, record) =>
+        record.isPublic ? (
+          <Tag color="green">Công khai</Tag>
+        ) : (
+          <Tag color="red">Riêng tư</Tag>
+        ),
+    },
+    {
+      title: "Thao tác",
       hideInSearch: true,
       render: (_, entity) => (
         <>
@@ -66,18 +88,15 @@ const TablePlaylists = () => {
           />
           <Popconfirm
             placement="leftTop"
-            title={"Xác nhận xóa bài hát"}
-            description={"Bạn có chắc chắn muốn xóa bài hát này ?"}
-            onConfirm={() => handleDeleteSong(entity.id)}
+            title="Xác nhận xóa playlist"
+            description="Bạn có chắc chắn muốn xóa playlist này?"
+            onConfirm={() => handleDelete(entity.id)}
             okText="Xác nhận"
             cancelText="Hủy"
-            okButtonProps={{ loading: isDeleteUser }}
+            okButtonProps={{ loading: isDelete }}
           >
-            <span style={{ cursor: "pointer", marginLeft: 20 }}>
-              <DeleteTwoTone
-                twoToneColor="#ff4d4f"
-                style={{ cursor: "pointer" }}
-              />
+            <span style={{ cursor: "pointer" }}>
+              <DeleteTwoTone twoToneColor="#ff4d4f" />
             </span>
           </Popconfirm>
         </>
@@ -85,33 +104,33 @@ const TablePlaylists = () => {
     },
   ];
 
-  const refreshTable = () => {
-    actionRef.current?.reload();
-  };
-
   return (
     <>
-      <ProTable<ISong, TSearch>
+      <ProTable<IPlaylist>
         columns={columns}
         actionRef={actionRef}
         cardBordered
-        search={false}
-        pagination={false}
-        request={async () => {
-          const res = await getAllSongs();
+        rowKey="id"
+        pagination={{
+          pageSize: 10,
+        }}
+        request={async (params) => {
+          const page = params.current || 1;
+          const res = await getAllPlaylistsAPI(page);
           return {
-            data: res.data || [],
+            data: res.items || [],
             success: true,
+            total: res.meta?.totalItems || 0,
           };
         }}
-        headerTitle="Danh sách bài hát"
+        headerTitle="Danh sách Playlist"
         toolBarRender={() => [
           <Button
             key="import"
             icon={<CloudUploadOutlined />}
             type="primary"
             onClick={() => {
-              console.log("Import song data");
+              console.log("Import playlists");
             }}
           >
             Import
