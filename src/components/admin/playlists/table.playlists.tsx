@@ -6,10 +6,22 @@ import {
 } from "@ant-design/icons";
 import type { ActionType, ProColumns } from "@ant-design/pro-components";
 import { ProTable } from "@ant-design/pro-components";
-import { Button, Image, message, notification, Popconfirm, Tag } from "antd";
+import {
+  Button,
+  Image,
+  Input,
+  message,
+  notification,
+  Popconfirm,
+  Tag,
+} from "antd";
 import { useRef, useState } from "react";
 
-import { getAllPlaylistsAPI, deletePlaylistAPI } from "@/services/api";
+import {
+  getAllPlaylistsAPI,
+  deletePlaylistAPI,
+  searchPlaylistsByTitleAPI,
+} from "@/services/api";
 import CreatePlaylists from "./create.playlists";
 import UpdatePlaylists from "./update.playlists";
 
@@ -19,6 +31,7 @@ const TablePlaylists = () => {
   const [openModalUpdate, setOpenModalUpdate] = useState(false);
   const [dataUpdate, setDataUpdate] = useState<IPlaylist | null>(null);
   const [openModalCreate, setOpenModalCreate] = useState(false);
+  const [searchKeyword, setSearchKeyword] = useState("");
 
   const refreshTable = () => {
     actionRef.current?.reload();
@@ -111,20 +124,43 @@ const TablePlaylists = () => {
         actionRef={actionRef}
         cardBordered
         rowKey="id"
-        pagination={{
-          pageSize: 10,
-        }}
+        pagination={{ pageSize: 10 }}
+        search={false}
         request={async (params) => {
-          const page = params.current || 1;
-          const res = await getAllPlaylistsAPI(page);
-          return {
-            data: res.items || [],
-            success: true,
-            total: res.meta?.totalItems || 0,
-          };
+          try {
+            const page = params.current || 1;
+
+            if (searchKeyword.trim()) {
+              const res = await searchPlaylistsByTitleAPI(searchKeyword);
+              console.log(res);
+              return {
+                data: res || [],
+                success: true,
+                total: res.length || 0,
+              };
+            } else {
+              const res = await getAllPlaylistsAPI(page);
+              return {
+                data: res.items || [],
+                success: true,
+                total: res.meta?.totalItems || 0,
+              };
+            }
+          } catch {
+            return { data: [], success: false };
+          }
         }}
         headerTitle="Danh sách Playlist"
         toolBarRender={() => [
+          <Input.Search
+            key="search"
+            placeholder="Tìm theo tiêu đề..."
+            allowClear
+            value={searchKeyword}
+            onChange={(e) => setSearchKeyword(e.target.value)}
+            onSearch={refreshTable}
+            style={{ width: 250 }}
+          />,
           <Button
             key="import"
             icon={<CloudUploadOutlined />}

@@ -31,7 +31,6 @@ const UpdateArtists = (props: IProps) => {
   const [form] = Form.useForm();
 
   useEffect(() => {
-    console.log(dataUpdate);
     if (dataUpdate) {
       form.setFieldsValue({
         id: dataUpdate.id,

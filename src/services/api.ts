@@ -185,3 +185,16 @@ export const updatePlaylistAPI = (
     songIds,
   });
 };
+export const searchSongsByTitleAPI = (q: string) => {
+  return axios.get("/songs/search/title", {
+    params: { q },
+  });
+};
+export const searchSongsByArtistAPI = (q: string) => {
+  return axios.get("/songs/search/artist", {
+    params: { q },
+  });
+};
+export const searchPlaylistsByTitleAPI = (searchTitle: string) => {
+  return axios.get(`/playlists/${searchTitle}`);
+};

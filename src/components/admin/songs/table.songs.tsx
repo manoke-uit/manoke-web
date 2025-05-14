@@ -6,10 +6,23 @@ import {
 } from "@ant-design/icons";
 import type { ActionType, ProColumns } from "@ant-design/pro-components";
 import { ProTable } from "@ant-design/pro-components";
-import { Button, message, notification, Popconfirm } from "antd";
+import {
+  Button,
+  message,
+  notification,
+  Popconfirm,
+  Select,
+  Input,
+  Space,
+} from "antd";
 import { useRef, useState } from "react";
 
-import { getAllSongs, deleteSongAPI } from "@/services/api";
+import {
+  getAllSongs,
+  deleteSongAPI,
+  searchSongsByTitleAPI,
+  searchSongsByArtistAPI,
+} from "@/services/api";
 import CreateSongs from "./create.songs";
 import UpdateSongs from "./update.songs";
 
@@ -23,6 +36,9 @@ const TableSongs = () => {
   const [openModalUpdate, setOpenModalUpdate] = useState(false);
   const [dataUpdate, setDataUpdate] = useState<ISong | null>(null);
   const [openModalCreate, setOpenModalCreate] = useState(false);
+
+  const [searchType, setSearchType] = useState<"title" | "artist">("title");
+  const [searchKeyword, setSearchKeyword] = useState<string>("");
 
   const handleDeleteSong = async (id: string) => {
     setIsDeleteUser(true);
@@ -43,16 +59,16 @@ const TableSongs = () => {
       width: 48,
     },
     {
-      title: "Id",
+      title: "ID",
       dataIndex: "id",
       hideInSearch: true,
     },
     {
-      title: "Song Name",
+      title: "Tên bài hát",
       dataIndex: "title",
     },
     {
-      title: "Action",
+      title: "Thao tác",
       hideInSearch: true,
       render: (_, entity) => (
         <>
@@ -66,18 +82,15 @@ const TableSongs = () => {
           />
           <Popconfirm
             placement="leftTop"
-            title={"Xác nhận xóa bài hát"}
-            description={"Bạn có chắc chắn muốn xóa bài hát này ?"}
+            title="Xác nhận xóa bài hát"
+            description="Bạn có chắc chắn muốn xóa bài hát này?"
             onConfirm={() => handleDeleteSong(entity.id)}
             okText="Xác nhận"
             cancelText="Hủy"
             okButtonProps={{ loading: isDeleteUser }}
           >
-            <span style={{ cursor: "pointer", marginLeft: 20 }}>
-              <DeleteTwoTone
-                twoToneColor="#ff4d4f"
-                style={{ cursor: "pointer" }}
-              />
+            <span style={{ cursor: "pointer" }}>
+              <DeleteTwoTone twoToneColor="#ff4d4f" />
             </span>
           </Popconfirm>
         </>
@@ -95,24 +108,51 @@ const TableSongs = () => {
         columns={columns}
         actionRef={actionRef}
         cardBordered
+        rowKey="id"
+        pagination={{ pageSize: 10 }}
         search={false}
-        pagination={false}
         request={async () => {
-          const res = await getAllSongs();
-          return {
-            data: res.data || [],
-            success: true,
-          };
+          try {
+            if (searchKeyword) {
+              const api =
+                searchType === "title"
+                  ? searchSongsByTitleAPI
+                  : searchSongsByArtistAPI;
+              const res = await api(searchKeyword);
+              return { data: res.data || [], success: true };
+            } else {
+              const res = await getAllSongs();
+              return { data: res.data || [], success: true };
+            }
+          } catch {
+            return { data: [], success: false };
+          }
         }}
         headerTitle="Danh sách bài hát"
         toolBarRender={() => [
+          <Space key="search" style={{ display: "flex", gap: 8 }}>
+            <Select
+              defaultValue="title"
+              style={{ width: 120 }}
+              onChange={(val) => setSearchType(val as "title" | "artist")}
+              options={[
+                { label: "Tiêu đề", value: "title" },
+                { label: "Nghệ sĩ", value: "artist" },
+              ]}
+            />
+            <Input.Search
+              placeholder="Tìm kiếm..."
+              onSearch={() => refreshTable()}
+              allowClear
+              value={searchKeyword}
+              onChange={(e) => setSearchKeyword(e.target.value)}
+            />
+          </Space>,
           <Button
             key="import"
             icon={<CloudUploadOutlined />}
             type="primary"
-            onClick={() => {
-              console.log("Import song data");
-            }}
+            onClick={() => console.log("Import song data")}
           >
             Import
           </Button>,
@@ -124,7 +164,7 @@ const TableSongs = () => {
               setOpenModalCreate(true);
             }}
           >
-            Add new
+            Thêm mới
           </Button>,
         ]}
       />
