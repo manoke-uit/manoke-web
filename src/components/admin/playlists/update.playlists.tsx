@@ -1,7 +1,11 @@
 import { useEffect, useState } from "react";
 import { App, Divider, Form, Input, Modal, Select, Switch } from "antd";
 import type { FormProps } from "antd";
-import { updatePlaylistAPI, getAllSongs } from "@/services/api";
+import {
+  updatePlaylistAPI,
+  getAllSongs,
+  getSongsInPlaylistAPI,
+} from "@/services/api";
 
 interface IProps {
   openModalUpdate: boolean;
@@ -35,37 +39,49 @@ const UpdatePlaylists = (props: IProps) => {
   const [songOptions, setSongOptions] = useState<
     { label: string; value: string }[]
   >([]);
-
   useEffect(() => {
-    const fetchSongs = async () => {
+    const fetchAllSongs = async () => {
       try {
         const res = await getAllSongs();
-        const options = res?.data?.map((song: any) => ({
+        const songs = res?.data || [];
+        const options = songs.map((song: any) => ({
           label: song.title,
           value: song.id,
         }));
         setSongOptions(options);
       } catch {
-        notification.error({
-          message: "Không thể tải danh sách bài hát",
-        });
+        notification.error({ message: "Không thể tải danh sách bài hát" });
       }
     };
-
-    fetchSongs();
+    fetchAllSongs();
   }, []);
 
   useEffect(() => {
-    if (dataUpdate) {
-      form.setFieldsValue({
-        id: dataUpdate.id,
-        title: dataUpdate.title,
-        imageUrl: dataUpdate.imageUrl,
-        description: dataUpdate.description,
-        isPublic: dataUpdate.isPublic,
-        songIds: dataUpdate.songIds ?? [],
-      });
-    }
+    const fetchSongIdsInPlaylist = async () => {
+      if (dataUpdate) {
+        try {
+          const res = await getSongsInPlaylistAPI(dataUpdate.id);
+
+          const songs = res || [];
+          const songIds = songs.map((song: any) => song.id);
+
+          form.setFieldsValue({
+            id: dataUpdate.id,
+            title: dataUpdate.title,
+            imageUrl: dataUpdate.imageUrl,
+            description: dataUpdate.description,
+            isPublic: dataUpdate.isPublic,
+            songIds: songIds,
+          });
+        } catch {
+          notification.error({
+            message: "Không thể tải bài hát trong playlist",
+          });
+        }
+      }
+    };
+
+    fetchSongIdsInPlaylist();
   }, [dataUpdate]);
 
   const onFinish: FormProps<FieldType>["onFinish"] = async (values) => {
@@ -81,6 +97,7 @@ const UpdatePlaylists = (props: IProps) => {
         isPublic,
         songIds
       );
+      console.log(res);
       if (res) {
         message.success("Cập nhật playlist thành công");
         form.resetFields();
@@ -95,8 +112,9 @@ const UpdatePlaylists = (props: IProps) => {
         message: "Cập nhật thất bại",
         description: err.message || "Lỗi trong quá trình gửi dữ liệu",
       });
+    } finally {
+      setIsSubmit(false);
     }
-    setIsSubmit(false);
   };
 
   return (
@@ -164,8 +182,8 @@ const UpdatePlaylists = (props: IProps) => {
         >
           <Select
             mode="multiple"
-            placeholder="Chọn bài hát"
             options={songOptions}
+            placeholder="Chọn bài hát"
             showSearch
             optionFilterProp="label"
           />

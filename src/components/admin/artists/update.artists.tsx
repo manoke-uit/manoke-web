@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { App, Divider, Form, Input, Modal, Select } from "antd";
 import type { FormProps } from "antd";
-import { updateArtistAPI } from "@/services/api";
+import { updateArtistAPI, getAllSongs } from "@/services/api";
 
 interface IProps {
   openModalUpdate: boolean;
@@ -26,19 +26,44 @@ const UpdateArtists = (props: IProps) => {
     setDataUpdate,
     dataUpdate,
   } = props;
+
   const [isSubmit, setIsSubmit] = useState<boolean>(false);
-  const { message, notification } = App.useApp();
   const [form] = Form.useForm();
+  const { message, notification } = App.useApp();
+  const [songOptions, setSongOptions] = useState<
+    { label: string; value: string }[]
+  >([]);
 
   useEffect(() => {
-    if (dataUpdate) {
-      form.setFieldsValue({
-        id: dataUpdate.id,
-        name: dataUpdate.name,
-        imageUrl: dataUpdate.imageUrl,
-        songIds: dataUpdate.songIds,
-      });
-    }
+    const fetchSongsByArtist = async () => {
+      if (dataUpdate) {
+        try {
+          const res = await getAllSongs(undefined, dataUpdate.id);
+          const songs = res?.data || [];
+
+          const songIds = songs.map((song: any) => song.id);
+          const options = songs.map((song: any) => ({
+            label: song.title,
+            value: song.id,
+          }));
+
+          setSongOptions(options);
+
+          form.setFieldsValue({
+            id: dataUpdate.id,
+            name: dataUpdate.name,
+            imageUrl: dataUpdate.imageUrl,
+            songIds: songIds,
+          });
+        } catch (error) {
+          notification.error({
+            message: "Không thể tải danh sách bài hát của nghệ sĩ",
+          });
+        }
+      }
+    };
+
+    fetchSongsByArtist();
   }, [dataUpdate]);
 
   const onFinish: FormProps<FieldType>["onFinish"] = async (values) => {
@@ -46,6 +71,7 @@ const UpdateArtists = (props: IProps) => {
     setIsSubmit(true);
     try {
       const res = await updateArtistAPI(id, name, imageUrl, songIds);
+      console.log(res);
       if (res) {
         message.success("Cập nhật nghệ sĩ thành công");
         form.resetFields();
@@ -94,7 +120,7 @@ const UpdateArtists = (props: IProps) => {
         <Form.Item<FieldType>
           label="Tên nghệ sĩ"
           name="name"
-          rules={[{ required: true }]}
+          rules={[{ required: true, message: "Vui lòng nhập tên nghệ sĩ" }]}
         >
           <Input />
         </Form.Item>
@@ -102,17 +128,25 @@ const UpdateArtists = (props: IProps) => {
         <Form.Item<FieldType>
           label="Hình ảnh"
           name="imageUrl"
-          rules={[{ required: true }]}
+          rules={[{ required: true, message: "Vui lòng nhập đường dẫn ảnh" }]}
         >
           <Input />
         </Form.Item>
 
         <Form.Item<FieldType>
-          label="Danh sách bài hát (ID)"
+          label="Danh sách bài hát"
           name="songIds"
-          rules={[{ required: true }]}
+          rules={[
+            { required: true, message: "Vui lòng chọn ít nhất 1 bài hát" },
+          ]}
         >
-          <Select mode="tags" placeholder="Nhập danh sách ID bài hát" />
+          <Select
+            mode="multiple"
+            options={songOptions}
+            placeholder="Chọn bài hát của nghệ sĩ"
+            showSearch
+            optionFilterProp="label"
+          />
         </Form.Item>
       </Form>
     </Modal>

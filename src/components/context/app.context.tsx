@@ -6,6 +6,7 @@ interface IAppContext {
   setIsAuthenticated: (v: boolean) => void;
   setUser: (v: IFetchUser | null) => void;
   user: IFetchUser | null;
+  isLoading: boolean;
 }
 
 const CurrentAppContext = createContext<IAppContext | null>(null);
@@ -17,12 +18,20 @@ type TProps = {
 export const AppProvider = (props: TProps) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [user, setUser] = useState<IFetchUser | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   useEffect(() => {
     const fetchAccount = async () => {
-      const res = await fetchAccountAPI();
-      if (res) {
-        setUser(res);
-        setIsAuthenticated(true);
+      try {
+        const res = await fetchAccountAPI();
+        if (res) {
+          setUser(res);
+          setIsAuthenticated(true);
+        }
+      } catch (error) {
+        setIsAuthenticated(false);
+        setUser(null);
+      } finally {
+        setIsLoading(false);
       }
     };
     fetchAccount();
@@ -35,6 +44,7 @@ export const AppProvider = (props: TProps) => {
           user,
           setIsAuthenticated,
           setUser,
+          isLoading,
         }}
       >
         {props.children}

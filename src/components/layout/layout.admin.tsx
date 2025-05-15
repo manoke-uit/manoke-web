@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   DashboardOutlined,
   UserOutlined,
@@ -13,15 +13,23 @@ import { FaUserEdit } from "react-icons/fa";
 import { BiCategory } from "react-icons/bi";
 import { CiMicrophoneOn } from "react-icons/ci";
 import { PiPlaylistThin } from "react-icons/pi";
+import { useCurrentApp } from "../context/app.context";
 const AdminLayout: React.FC = () => {
   const { Header, Sider, Content, Footer } = Layout;
   const navigate = useNavigate();
-
+  const { isLoading, isAuthenticated, setIsAuthenticated } = useCurrentApp();
   const handleLogout = async () => {
+    setIsAuthenticated(false);
     localStorage.removeItem("access_token");
     message.success("Đã đăng xuất thành công!");
     navigate("/login");
   };
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      message.warning("Vui lòng đăng nhập để tiếp tục!");
+      navigate("/login");
+    }
+  }, [isLoading, isAuthenticated, navigate]);
 
   const userMenu = {
     items: [

@@ -20,7 +20,6 @@ const LoginPage = () => {
     setIsSubmit(false);
     if (res) {
       setIsAuthenticated(true);
-
       localStorage.setItem("access_token", res.accessToken);
       message.success("Đăng nhập tài khoản thành công!");
       navigate("/");

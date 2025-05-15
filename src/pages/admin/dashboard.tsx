@@ -1,5 +1,4 @@
-import AdminDashboard from "@/components/admin/dashboard";
-import React from "react";
+import AdminDashboard from "@/components/admin/dashboard/dashboard";
 
 const Dashboard = () => {
   return (

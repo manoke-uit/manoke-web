@@ -7,8 +7,12 @@ export const fetchAccountAPI = () => {
   const url = `/profile`;
   return axios.get<IFetchUser>(url);
 };
-export const getAllSongs = () => {
-  return axios.get("/songs");
+export const getAllSongs = (genreId?: string, artistId?: string) => {
+  const params: any = {};
+  if (genreId) params.genreId = genreId;
+  if (artistId) params.artistId = artistId;
+
+  return axios.get("/songs", { params });
 };
 
 export const logoutAPI = () => {
@@ -161,10 +165,8 @@ export const createPlaylistAPI = (
     songIds,
   });
 };
-export const getAllPlaylistsAPI = (page: number) => {
-  return axios.get(`/playlists`, {
-    params: { page },
-  });
+export const getAllPlaylistsAPI = () => {
+  return axios.get(`/playlists`);
 };
 export const deletePlaylistAPI = (id: string) => {
   return axios.delete(`/playlists/${id}`);
@@ -197,4 +199,7 @@ export const searchSongsByArtistAPI = (q: string) => {
 };
 export const searchPlaylistsByTitleAPI = (searchTitle: string) => {
   return axios.get(`/playlists/${searchTitle}`);
+};
+export const getSongsInPlaylistAPI = (playlistId: string) => {
+  return axios.get(`/playlists/${playlistId}/songs`);
 };

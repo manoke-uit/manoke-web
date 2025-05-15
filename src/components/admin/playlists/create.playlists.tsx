@@ -64,7 +64,7 @@ const CreatePlaylists = (props: IProps) => {
         payload.songIds
       );
 
-      if (res && res.data) {
+      if (res) {
         message.success("Tạo playlist thành công!");
         form.resetFields();
         setOpenModalCreate(false);

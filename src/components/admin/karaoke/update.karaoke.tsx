@@ -64,7 +64,8 @@ const UpdateKaraokes = (props: IProps) => {
     setIsSubmit(true);
     try {
       const res = await updateKaraokeAPI(id, description, videoUrl, songId);
-      if (res && res.data) {
+      console.log(res);
+      if (res) {
         message.success("Cập nhật karaoke thành công!");
         form.resetFields();
         setOpenModalUpdate(false);

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { App, Divider, Form, Input, Modal, Select } from "antd";
 import type { FormProps } from "antd";
-import { updateGenreAPI } from "@/services/api";
+import { updateGenreAPI, getAllSongs } from "@/services/api";
 
 interface IProps {
   openModalUpdate: boolean;
@@ -25,18 +25,44 @@ const UpdateGenres = (props: IProps) => {
     setDataUpdate,
     dataUpdate,
   } = props;
+
   const [isSubmit, setIsSubmit] = useState<boolean>(false);
-  const { message, notification } = App.useApp();
   const [form] = Form.useForm();
+  const { message, notification } = App.useApp();
+  const [songOptions, setSongOptions] = useState<
+    { label: string; value: string }[]
+  >([]);
 
   useEffect(() => {
-    if (dataUpdate) {
-      form.setFieldsValue({
-        id: dataUpdate.id,
-        name: dataUpdate.name,
-        songIds: dataUpdate.songs,
-      });
-    }
+    const fetchSongsByGenre = async () => {
+      if (dataUpdate) {
+        try {
+          const res = await getAllSongs(dataUpdate.id, undefined);
+          console.log(res);
+          const songs = res?.data || [];
+
+          const songIds = songs.map((song: any) => song.id);
+          const options = songs.map((song: any) => ({
+            label: song.title,
+            value: song.id,
+          }));
+
+          setSongOptions(options);
+
+          form.setFieldsValue({
+            id: dataUpdate.id,
+            name: dataUpdate.name,
+            songIds: songIds,
+          });
+        } catch (error) {
+          notification.error({
+            message: "Không thể tải danh sách bài hát của thể loại",
+          });
+        }
+      }
+    };
+
+    fetchSongsByGenre();
   }, [dataUpdate]);
 
   const onFinish: FormProps<FieldType>["onFinish"] = async (values) => {
@@ -92,17 +118,25 @@ const UpdateGenres = (props: IProps) => {
         <Form.Item<FieldType>
           label="Tên thể loại"
           name="name"
-          rules={[{ required: true }]}
+          rules={[{ required: true, message: "Vui lòng nhập tên thể loại" }]}
         >
           <Input />
         </Form.Item>
 
         <Form.Item<FieldType>
-          label="Danh sách bài hát (ID)"
+          label="Danh sách bài hát"
           name="songIds"
-          rules={[{ required: true }]}
+          rules={[
+            { required: true, message: "Vui lòng chọn ít nhất 1 bài hát" },
+          ]}
         >
-          <Select mode="tags" placeholder="Nhập danh sách ID bài hát" />
+          <Select
+            mode="multiple"
+            options={songOptions}
+            placeholder="Chọn bài hát thuộc thể loại"
+            showSearch
+            optionFilterProp="label"
+          />
         </Form.Item>
       </Form>
     </Modal>

@@ -126,24 +126,21 @@ const TablePlaylists = () => {
         rowKey="id"
         pagination={{ pageSize: 10 }}
         search={false}
-        request={async (params) => {
+        request={async () => {
           try {
-            const page = params.current || 1;
-
             if (searchKeyword.trim()) {
               const res = await searchPlaylistsByTitleAPI(searchKeyword);
-              console.log(res);
               return {
                 data: res || [],
                 success: true,
                 total: res.length || 0,
               };
             } else {
-              const res = await getAllPlaylistsAPI(page);
+              const res = await getAllPlaylistsAPI();
               return {
-                data: res.items || [],
+                data: res || [],
                 success: true,
-                total: res.meta?.totalItems || 0,
+                total: res.length || 0,
               };
             }
           } catch {
