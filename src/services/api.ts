@@ -203,3 +203,15 @@ export const searchPlaylistsByTitleAPI = (searchTitle: string) => {
 export const getSongsInPlaylistAPI = (playlistId: string) => {
   return axios.get(`/playlists/${playlistId}/songs`);
 };
+const updatePlaylistSongsIndividually = async (
+  playlistId: string,
+  songIds: string[]
+) => {
+  for (const songId of songIds) {
+    try {
+      await axios.patch(`/playlists/${playlistId}/songs/${songId}`);
+    } catch (err) {
+      console.error(`Lỗi khi cập nhật bài hát ${songId}:`, err);
+    }
+  }
+};
