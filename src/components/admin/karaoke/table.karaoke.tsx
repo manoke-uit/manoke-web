@@ -49,7 +49,16 @@ const TableKaraokes = () => {
     {
       title: "Video URL",
       dataIndex: "videoUrl",
+      render: (text) => {
+        const url = typeof text === "string" ? text : "";
+        return (
+          <a href={url} target="_blank" rel="noopener noreferrer">
+            {url}
+          </a>
+        );
+      },
     },
+
     {
       title: "Mô tả",
       dataIndex: "description",

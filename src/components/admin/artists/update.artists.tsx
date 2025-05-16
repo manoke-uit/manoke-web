@@ -33,7 +33,22 @@ const UpdateArtists = (props: IProps) => {
   const [songOptions, setSongOptions] = useState<
     { label: string; value: string }[]
   >([]);
-
+  useEffect(() => {
+    const fetchAllSongs = async () => {
+      try {
+        const res = await getAllSongs();
+        const songs = res?.data || [];
+        const options = songs.map((song: any) => ({
+          label: song.title,
+          value: song.id,
+        }));
+        setSongOptions(options);
+      } catch {
+        notification.error({ message: "Không thể tải danh sách bài hát" });
+      }
+    };
+    fetchAllSongs();
+  }, []);
   useEffect(() => {
     const fetchSongsByArtist = async () => {
       if (dataUpdate) {
@@ -42,12 +57,6 @@ const UpdateArtists = (props: IProps) => {
           const songs = res?.data || [];
 
           const songIds = songs.map((song: any) => song.id);
-          const options = songs.map((song: any) => ({
-            label: song.title,
-            value: song.id,
-          }));
-
-          setSongOptions(options);
 
           form.setFieldsValue({
             id: dataUpdate.id,
