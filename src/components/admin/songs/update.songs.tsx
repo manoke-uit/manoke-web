@@ -16,6 +16,7 @@ type FieldType = {
   title: string;
   songUrl: string;
   lyrics: string;
+  imageUrl: string;
 };
 
 const UpdateSongs = (props: IProps) => {
@@ -37,14 +38,15 @@ const UpdateSongs = (props: IProps) => {
         title: dataUpdate.title,
         songUrl: dataUpdate.songUrl,
         lyrics: dataUpdate.lyrics ?? "",
+        imageUrl: dataUpdate.imageUrl ?? "",
       });
     }
   }, [dataUpdate]);
   const onFinish: FormProps<FieldType>["onFinish"] = async (values) => {
-    const { id, title, lyrics, songUrl } = values;
+    const { id, title, lyrics, songUrl, imageUrl } = values;
 
     setIsSubmit(true);
-    const res = await updateSongAPI(id, title, lyrics, songUrl);
+    const res = await updateSongAPI(id, title, lyrics, songUrl, imageUrl);
     if (res) {
       message.success("Cập nhật bài hát thành công");
       form.resetFields();
@@ -94,6 +96,13 @@ const UpdateSongs = (props: IProps) => {
           <Form.Item<FieldType>
             label="Link bài hát"
             name="songUrl"
+            rules={[{ required: true }]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item<FieldType>
+            label="Link ảnh bài hát"
+            name="imageUrl"
             rules={[{ required: true }]}
           >
             <Input />

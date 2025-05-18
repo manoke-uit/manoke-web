@@ -43,6 +43,7 @@ declare global {
     songUrl: string;
     artists: string[];
     playlists: string[];
+    imageUrl: string;
     lyrics: string;
   }
   export interface IPaginatedSongs {

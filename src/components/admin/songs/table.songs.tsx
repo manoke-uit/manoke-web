@@ -64,6 +64,23 @@ const TableSongs = () => {
       hideInSearch: true,
     },
     {
+      title: "Ảnh bài hát",
+      dataIndex: "imageUrl",
+      hideInSearch: true,
+      render: (url) => (
+        <img
+          src={url as string}
+          alt="image"
+          style={{
+            width: 70,
+            height: 80,
+            objectFit: "contain",
+            borderRadius: 4,
+          }}
+        />
+      ),
+    },
+    {
       title: "Tên bài hát",
       dataIndex: "title",
     },

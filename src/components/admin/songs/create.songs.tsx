@@ -14,6 +14,7 @@ type FieldType = {
   title: string;
   lyrics: string;
   file: File;
+  image: File;
 };
 
 const CreateSongs = (props: IProps) => {
@@ -22,17 +23,23 @@ const CreateSongs = (props: IProps) => {
   const { message, notification } = App.useApp();
   const [isSubmit, setIsSubmit] = useState(false);
   const [file, setFile] = useState<File | null>(null);
+  const [image, setImage] = useState<File | null>(null);
 
   const onFinish: FormProps<FieldType>["onFinish"] = async (values) => {
     if (!file) {
       message.warning("Vui lòng chọn file bài hát");
       return;
     }
+    if (!image) {
+      message.warning("Vui lòng chọn ảnh bài hát");
+      return;
+    }
 
     const formData = new FormData();
     formData.append("title", values.title);
     formData.append("lyrics", values.lyrics);
-    formData.append("file", file);
+    formData.append("audio", file);
+    formData.append("image", image);
 
     setIsSubmit(true);
     try {
@@ -42,6 +49,7 @@ const CreateSongs = (props: IProps) => {
         message.success("Tạo bài hát thành công!");
         form.resetFields();
         setFile(null);
+        setImage(null);
         setOpenModalCreate(false);
         refreshTable();
       } else {
@@ -60,59 +68,71 @@ const CreateSongs = (props: IProps) => {
   };
 
   return (
-    <>
-      <Modal
-        title="Thêm mới bài hát"
-        open={openModalCreate}
-        onOk={() => form.submit()}
-        onCancel={() => {
-          setOpenModalCreate(false);
-          form.resetFields();
-          setFile(null);
-        }}
-        okText="Tạo mới"
-        cancelText="Hủy"
-        confirmLoading={isSubmit}
+    <Modal
+      title="Thêm mới bài hát"
+      open={openModalCreate}
+      onOk={() => form.submit()}
+      onCancel={() => {
+        setOpenModalCreate(false);
+        form.resetFields();
+        setFile(null);
+        setImage(null);
+      }}
+      okText="Tạo mới"
+      cancelText="Hủy"
+      confirmLoading={isSubmit}
+    >
+      <Divider />
+      <Form
+        form={form}
+        name="create-song"
+        onFinish={onFinish}
+        autoComplete="off"
+        layout="vertical"
       >
-        <Divider />
-        <Form
-          form={form}
-          name="create-song"
-          onFinish={onFinish}
-          autoComplete="off"
-          layout="vertical"
+        <Form.Item<FieldType>
+          label="Tên bài hát"
+          name="title"
+          rules={[{ required: true }]}
         >
-          <Form.Item<FieldType>
-            label="Tên bài hát"
-            name="title"
-            rules={[{ required: true }]}
-          >
-            <Input />
-          </Form.Item>
+          <Input />
+        </Form.Item>
 
-          <Form.Item<FieldType>
-            label="Lời bài hát"
-            name="lyrics"
-            rules={[{ required: true }]}
-          >
-            <Input.TextArea rows={4} />
-          </Form.Item>
+        <Form.Item<FieldType>
+          label="Lời bài hát"
+          name="lyrics"
+          rules={[{ required: true }]}
+        >
+          <Input.TextArea rows={4} />
+        </Form.Item>
 
-          <Form.Item label="File bài hát" required>
-            <Upload
-              beforeUpload={(file) => {
-                setFile(file);
-                return false;
-              }}
-              maxCount={1}
-              accept="audio/*"
-            >
-              <Button icon={<UploadOutlined />}>Chọn file</Button>
-            </Upload>
-          </Form.Item>
-        </Form>
-      </Modal>
-    </>
+        <Form.Item label="File bài hát" required>
+          <Upload
+            beforeUpload={(file) => {
+              setFile(file);
+              return false;
+            }}
+            maxCount={1}
+            accept="audio/*"
+          >
+            <Button icon={<UploadOutlined />}>Chọn file nhạc</Button>
+          </Upload>
+        </Form.Item>
+
+        <Form.Item label="Ảnh bài hát" required>
+          <Upload
+            beforeUpload={(file) => {
+              setImage(file);
+              return false;
+            }}
+            maxCount={1}
+            accept="image/*"
+          >
+            <Button icon={<UploadOutlined />}>Chọn ảnh</Button>
+          </Upload>
+        </Form.Item>
+      </Form>
+    </Modal>
   );
 };
 

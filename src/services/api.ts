@@ -88,13 +88,15 @@ export const updateSongAPI = (
   id: string,
   title: string,
   lyrics: string,
-  songUrl: string
+  songUrl: string,
+  imageUrl: string
 ) => {
   const url = `/songs/${id}`;
   return axios.patch(url, {
     title,
     lyrics,
     songUrl,
+    imageUrl,
   });
 };
 export const updateArtistAPI = (
