@@ -14,6 +14,7 @@ import Artists from "./pages/admin/artists";
 import Genres from "./pages/admin/genres";
 import Karaoke from "./pages/admin/karaoke";
 import Playlists from "./pages/admin/playlists";
+import Notifications from "./pages/admin/notifications";
 
 const router = createBrowserRouter([
   {
@@ -51,6 +52,10 @@ const router = createBrowserRouter([
       {
         path: "playlists",
         element: <Playlists />,
+      },
+      {
+        path: "notifications",
+        element: <Notifications />,
       },
     ],
   },

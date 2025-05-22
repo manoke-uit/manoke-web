@@ -217,3 +217,25 @@ const updatePlaylistSongsIndividually = async (
     }
   }
 };
+export const sendNotificationToAllUserAPI = async (data: {
+  title: string;
+  description: string;
+}) => {
+  const res = await axios.post(
+    "/notifications/sendNotificationToAllUser",
+    data
+  );
+  return res;
+};
+
+export const sendNotificationToUserAPI = async (data: {
+  title: string;
+  description: string;
+  createdAt: string;
+  isRead: boolean;
+  userId: string;
+  expoPushToken: string;
+}) => {
+  const res = await axios.post("/notifications/sendNotificationToUser", data);
+  return res.data;
+};

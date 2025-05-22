@@ -13,6 +13,7 @@ import { FaUserEdit } from "react-icons/fa";
 import { BiCategory } from "react-icons/bi";
 import { CiMicrophoneOn } from "react-icons/ci";
 import { PiPlaylistThin } from "react-icons/pi";
+import { IoIosNotifications } from "react-icons/io";
 import { useCurrentApp } from "../context/app.context";
 const AdminLayout: React.FC = () => {
   const { Header, Sider, Content, Footer } = Layout;
@@ -90,6 +91,11 @@ const AdminLayout: React.FC = () => {
               key: "7",
               icon: <PiPlaylistThin />,
               label: <Link to="/playlists">Playlists</Link>,
+            },
+            {
+              key: "8",
+              icon: <IoIosNotifications />,
+              label: <Link to="/notifications">Notifications</Link>,
             },
           ]}
         />
