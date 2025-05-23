@@ -231,11 +231,14 @@ export const sendNotificationToAllUserAPI = async (data: {
 export const sendNotificationToUserAPI = async (data: {
   title: string;
   description: string;
-  createdAt: string;
-  isRead: boolean;
   userId: string;
-  expoPushToken: string;
 }) => {
   const res = await axios.post("/notifications/sendNotificationToUser", data);
   return res.data;
+};
+export const getExpoPushTokensByUserIdAPI = async (
+  userId: string
+): Promise<string[]> => {
+  const res = await axios.get(`/users/userTokenList/${userId}`);
+  return res;
 };

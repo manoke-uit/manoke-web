@@ -24,9 +24,7 @@ const Notifications = () => {
   const [formOne] = Form.useForm();
   const [loadingAll, setLoadingAll] = useState(false);
   const [loadingOne, setLoadingOne] = useState(false);
-  const [users, setUsers] = useState<
-    { id: string; displayName: string; expoPushToken: string }[]
-  >([]);
+  const [users, setUsers] = useState<{ id: string; displayName: string }[]>([]);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -66,23 +64,9 @@ const Notifications = () => {
     description: string;
     userId: string;
   }) => {
-    const selectedUser = users.find((u) => u.id === values.userId);
-    if (!selectedUser || !selectedUser.expoPushToken) {
-      return message.error("Invalid user or missing push token");
-    }
-
-    const payload = {
-      title: values.title,
-      description: values.description,
-      createdAt: new Date().toISOString(),
-      isRead: false,
-      userId: selectedUser.id,
-      expoPushToken: selectedUser.expoPushToken,
-    };
-
     setLoadingOne(true);
     try {
-      await sendNotificationToUserAPI(payload);
+      await sendNotificationToUserAPI(values);
       message.success("Notification sent to user.");
       formOne.resetFields();
     } catch (err) {
@@ -113,10 +97,10 @@ const Notifications = () => {
               rules={[{ required: true, message: "Please input description" }]}
             >
               <Input.TextArea
-                placeholder="Enter notification content"
                 rows={4}
                 showCount
                 maxLength={200}
+                placeholder="Enter notification content"
               />
             </Form.Item>
 
