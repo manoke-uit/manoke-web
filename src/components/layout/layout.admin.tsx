@@ -7,24 +7,28 @@ import {
 } from "@ant-design/icons";
 import { Dropdown, Layout, Menu, Space, message } from "antd";
 import { Link, Outlet, useNavigate } from "react-router-dom";
-import { FaArtstation, FaUserCircle } from "react-icons/fa";
-import { CiMusicNote1 } from "react-icons/ci";
+import { FaUserCircle } from "react-icons/fa";
+import { CiMusicNote1, CiMicrophoneOn } from "react-icons/ci";
 import { FaUserEdit } from "react-icons/fa";
 import { BiCategory } from "react-icons/bi";
-import { CiMicrophoneOn } from "react-icons/ci";
 import { PiPlaylistThin } from "react-icons/pi";
 import { IoIosNotifications } from "react-icons/io";
 import { useCurrentApp } from "../context/app.context";
+
 const AdminLayout: React.FC = () => {
-  const { Header, Sider, Content, Footer } = Layout;
+  const { Header, Sider, Content } = Layout;
   const navigate = useNavigate();
   const { isLoading, isAuthenticated, setIsAuthenticated } = useCurrentApp();
+  useEffect(() => {
+    console.log(isAuthenticated);
+  }, []);
   const handleLogout = async () => {
     setIsAuthenticated(false);
     localStorage.removeItem("access_token");
     message.success("Đã đăng xuất thành công!");
     navigate("/login");
   };
+
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
       message.warning("Vui lòng đăng nhập để tiếp tục!");
@@ -117,13 +121,22 @@ const AdminLayout: React.FC = () => {
             Trang Quản Lý
           </div>
 
-          <Dropdown menu={userMenu}>
-            <Space className="cursor-pointer">
-              <FaUserCircle size={24} />
-              <span className="text-gray-700 font-medium">Admin</span>
-              <DownOutlined />
-            </Space>
-          </Dropdown>
+          {isLoading ? null : isAuthenticated ? (
+            <Dropdown menu={userMenu}>
+              <Space className="cursor-pointer">
+                <FaUserCircle size={24} />
+                <span className="text-gray-700 font-medium">Admin</span>
+                <DownOutlined />
+              </Space>
+            </Dropdown>
+          ) : (
+            <Link
+              to="/login"
+              className="text-blue-600 font-medium hover:underline"
+            >
+              Đăng nhập
+            </Link>
+          )}
         </Header>
 
         <Content style={{ margin: "16px" }}>

@@ -23,7 +23,7 @@ export const AppProvider = (props: TProps) => {
     const fetchAccount = async () => {
       try {
         const res = await fetchAccountAPI();
-        if (res) {
+        if (res && res.userId) {
           setUser(res);
           setIsAuthenticated(true);
         }
