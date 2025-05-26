@@ -18,16 +18,13 @@ const LoginPage = () => {
     setIsSubmit(true);
     const res = await loginAPI(username, password);
     setIsSubmit(false);
-    if (res) {
+    if (res && res.accessToken) {
       setIsAuthenticated(true);
       localStorage.setItem("access_token", res.accessToken);
       message.success("Đăng nhập tài khoản thành công!");
       navigate("/");
     } else {
-      notification.error({
-        message: "Có lỗi xảy ra",
-        duration: 5,
-      });
+      message.error("Sai tài khoản hoặc mật khẩu!");
     }
   };
 
