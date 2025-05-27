@@ -1,8 +1,12 @@
-import { useState } from "react";
-import { App, Divider, Form, Input, Modal, Upload, Button } from "antd";
+import { useEffect, useState } from "react";
+import { App, Divider, Form, Input, Modal, Upload, Button, Select } from "antd";
 import type { FormProps } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
-import { createSongAPI } from "@/services/api";
+import {
+  createSongAPI,
+  getAllArtistsAPI,
+  getAllGenresAPI,
+} from "@/services/api";
 
 interface IProps {
   openModalCreate: boolean;
@@ -13,8 +17,8 @@ interface IProps {
 type FieldType = {
   title: string;
   lyrics: string;
-  file: File;
-  image: File;
+  artistIds: string[];
+  genreIds: string[];
 };
 
 const CreateSongs = (props: IProps) => {
@@ -24,6 +28,46 @@ const CreateSongs = (props: IProps) => {
   const [isSubmit, setIsSubmit] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [image, setImage] = useState<File | null>(null);
+  const [artistOptions, setArtistOptions] = useState<
+    { label: string; value: string }[]
+  >([]);
+  const [genreOptions, setGenreOptions] = useState<
+    { label: string; value: string }[]
+  >([]);
+
+  useEffect(() => {
+    const fetchArtistsAndGenres = async () => {
+      try {
+        const [artistRes, genreRes] = await Promise.all([
+          getAllArtistsAPI(1),
+          getAllGenresAPI(),
+        ]);
+        console.log(getAllGenresAPI);
+        const artists =
+          artistRes?.items?.map((artist: any) => ({
+            label: artist.name,
+            value: artist.id,
+          })) ?? [];
+
+        const genres =
+          genreRes?.data?.map((genre: any) => ({
+            label: genre.name,
+            value: genre.id,
+          })) ?? [];
+
+        setArtistOptions(artists);
+        setGenreOptions(genres);
+      } catch (err) {
+        notification.error({
+          message: "Không thể tải danh sách nghệ sĩ hoặc thể loại",
+        });
+      }
+    };
+
+    if (openModalCreate) {
+      fetchArtistsAndGenres();
+    }
+  }, [openModalCreate]);
 
   const onFinish: FormProps<FieldType>["onFinish"] = async (values) => {
     if (!file) {
@@ -41,10 +85,18 @@ const CreateSongs = (props: IProps) => {
     formData.append("audio", file);
     formData.append("image", image);
 
+    values.artistIds.forEach((id) => {
+      formData.append("artistIds[]", id);
+    });
+    values.genreIds.forEach((id) => {
+      formData.append("genreIds[]", id);
+    });
+
     setIsSubmit(true);
     try {
       const res = await createSongAPI(formData);
-
+      console.log([...formData.entries()]);
+      console.log(res);
       if (res && res.data) {
         message.success("Tạo bài hát thành công!");
         form.resetFields();
@@ -104,6 +156,38 @@ const CreateSongs = (props: IProps) => {
           rules={[{ required: true }]}
         >
           <Input.TextArea rows={4} />
+        </Form.Item>
+
+        <Form.Item<FieldType>
+          label="Chọn nghệ sĩ"
+          name="artistIds"
+          rules={[
+            { required: true, message: "Vui lòng chọn ít nhất 1 nghệ sĩ" },
+          ]}
+        >
+          <Select
+            mode="multiple"
+            placeholder="Chọn nghệ sĩ"
+            options={artistOptions}
+            optionFilterProp="label"
+            showSearch
+          />
+        </Form.Item>
+
+        <Form.Item<FieldType>
+          label="Chọn thể loại"
+          name="genreIds"
+          rules={[
+            { required: true, message: "Vui lòng chọn ít nhất 1 thể loại" },
+          ]}
+        >
+          <Select
+            mode="multiple"
+            placeholder="Chọn thể loại"
+            options={genreOptions}
+            optionFilterProp="label"
+            showSearch
+          />
         </Form.Item>
 
         <Form.Item label="File bài hát" required>

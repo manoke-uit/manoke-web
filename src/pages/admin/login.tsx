@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import type { FormProps } from "antd";
 import { App, Button, Checkbox, Form, Input } from "antd";
 import { useNavigate } from "react-router-dom";
-import { loginAPI } from "@/services/api";
+import { fetchAccountAPI, loginAPI } from "@/services/api";
 import { useCurrentApp } from "@/components/context/app.context";
 type FieldType = {
   username: string;
@@ -13,20 +13,40 @@ const LoginPage = () => {
   const [isSubmit, setIsSubmit] = useState(false);
   const { message, notification } = App.useApp();
   const { setIsAuthenticated, setUser } = useCurrentApp();
-  const onFinish: FormProps<FieldType>["onFinish"] = async (values) => {
-    const { username, password } = values;
-    setIsSubmit(true);
-    const res = await loginAPI(username, password);
-    setIsSubmit(false);
-    if (res && res.accessToken) {
+
+const onFinish: FormProps<FieldType>["onFinish"] = async (values) => {
+  const { username, password } = values;
+  setIsSubmit(true);
+  const res = await loginAPI(username, password);
+  setIsSubmit(false);
+
+  if (res && res.accessToken) {
+    // Lưu token tạm
+    localStorage.setItem("access_token", res.accessToken);
+
+    try {
+      const account = await fetchAccountAPI(); 
+
+      if (!account.adminSecret) {
+        message.error("Tài khoản không có quyền quản trị!");
+        localStorage.removeItem("access_token"); 
+        return;
+      }
+
       setIsAuthenticated(true);
-      localStorage.setItem("access_token", res.accessToken);
-      message.success("Đăng nhập tài khoản thành công!");
+      setUser(account);
+      localStorage.setItem("user", JSON.stringify(account));
+      message.success("Đăng nhập thành công với quyền quản trị!");
       navigate("/");
-    } else {
-      message.error("Sai tài khoản hoặc mật khẩu!");
+    } catch (err) {
+      message.error("Không thể kiểm tra thông tin tài khoản!");
+      localStorage.removeItem("access_token");
     }
-  };
+  } else {
+    message.error("Sai tài khoản hoặc mật khẩu!");
+  }
+};
+
 
   const onFinishFailed: FormProps<FieldType>["onFinishFailed"] = (
     errorInfo

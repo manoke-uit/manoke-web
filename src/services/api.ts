@@ -45,7 +45,7 @@ export const getAllUsersAPI = (params: Record<string, any>) => {
 
 export const deleteSongAPI = (id: string) => {
   const url = `/songs/${id}`;
-  return axios.delete<{ message: string }>(url);
+  return axios.delete(url);
 };
 export const getCategories = () => {
   const url = `/users`;
@@ -66,39 +66,40 @@ export const assignArtistToSong = (songId: string, artistId: string) => {
   });
 };
 export const createArtistAPI = (payload: ICreateArtistPayload) => {
-  return axios.post("/artists", payload);
+  const formData = new FormData();
+  formData.append("name", payload.name);
+  formData.append("image", payload.image); // dạng File
+  payload.songIds.forEach((id) => formData.append("songIds", id));
+
+  return axios.post("/artists", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
 };
+
 export const getAllArtistsAPI = (page: number) => {
   return axios.get("/artists", {
     params: { page },
   });
 };
 
-export const createGenreAPI = (payload: {
-  name: string;
-  songIds: string[];
-}) => {
+export const createGenreAPI = (payload: { name: string }) => {
   return axios.post("/genres", payload);
 };
 
 export const getAllGenresAPI = () => {
   return axios.get("/genres");
 };
-export const updateSongAPI = (
-  id: string,
-  title: string,
-  lyrics: string,
-  songUrl: string,
-  imageUrl: string
-) => {
+export const updateSongAPI = (id: string, formData: FormData) => {
   const url = `/songs/${id}`;
-  return axios.patch(url, {
-    title,
-    lyrics,
-    songUrl,
-    imageUrl,
+  return axios.patch(url, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
   });
 };
+
 export const updateArtistAPI = (
   id: string,
   name: string,
@@ -126,7 +127,7 @@ export const deleteGenreAPI = (id: string) => {
   return axios.delete(`/genres/${id}`);
 };
 export const createKaraokeAPI = (formData: FormData) => {
-  return axios.post("/karaokes/admin", formData, {
+  return axios.post("/karaokes", formData, {
     headers: {
       "Content-Type": "multipart/form-data",
     },
@@ -152,21 +153,27 @@ export const deleteKaraokeAPI = (id: string) => {
 };
 export const createPlaylistAPI = (
   title: string,
-  imageUrl: string,
+  image: File,
   description: string,
   isPublic: boolean,
   userId: string,
   songIds: string[]
 ) => {
-  return axios.post("/playlists", {
-    title,
-    imageUrl,
-    description,
-    isPublic,
-    userId,
-    songIds,
+  const formData = new FormData();
+  formData.append("title", title);
+  formData.append("image", image);
+  formData.append("description", description);
+  formData.append("isPublic", String(isPublic));
+  formData.append("userId", userId);
+  songIds.forEach((id) => formData.append("songIds", id));
+
+  return axios.post("/playlists", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
   });
 };
+
 export const getAllPlaylistsAPI = () => {
   return axios.get(`/playlists`);
 };

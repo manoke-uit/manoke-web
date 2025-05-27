@@ -1,6 +1,16 @@
 import { useEffect, useState } from "react";
-import { App, Divider, Form, Input, Modal, Select } from "antd";
+import {
+  App,
+  Divider,
+  Form,
+  Input,
+  Modal,
+  Select,
+  Upload,
+  UploadProps,
+} from "antd";
 import type { FormProps } from "antd";
+import { PlusOutlined } from "@ant-design/icons";
 import { createArtistAPI, getAllSongs } from "@/services/api";
 
 interface IProps {
@@ -11,7 +21,7 @@ interface IProps {
 
 type FieldType = {
   name: string;
-  imageUrl: string;
+  image: File;
   songIds: string[];
 };
 
@@ -23,6 +33,7 @@ const CreateArtists = (props: IProps) => {
   const [songOptions, setSongOptions] = useState<
     { label: string; value: string }[]
   >([]);
+  const [imageFile, setImageFile] = useState<File | null>(null);
 
   useEffect(() => {
     const fetchSongs = async () => {
@@ -38,13 +49,31 @@ const CreateArtists = (props: IProps) => {
     if (openModalCreate) fetchSongs();
   }, [openModalCreate]);
 
+  const normFile = (e: any) => {
+    if (Array.isArray(e)) return e;
+    return e?.fileList;
+  };
+
   const onFinish: FormProps<FieldType>["onFinish"] = async (values) => {
+    if (!imageFile) {
+      message.error("Vui lòng chọn hình ảnh!");
+      return;
+    }
+
+    const payload = {
+      name: values.name,
+      image: imageFile,
+      songIds: [],
+    };
+
     setIsSubmit(true);
     try {
-      const res = await createArtistAPI(values);
+      const res = await createArtistAPI(payload);
+      console.log(payload);
       if (res && res.data) {
         message.success("Tạo nghệ sĩ thành công!");
         form.resetFields();
+        setImageFile(null);
         setOpenModalCreate(false);
         refreshTable();
       } else {
@@ -62,6 +91,16 @@ const CreateArtists = (props: IProps) => {
     setIsSubmit(false);
   };
 
+  const uploadProps: UploadProps = {
+    beforeUpload: (file) => {
+      setImageFile(file);
+      return false;
+    },
+    maxCount: 1,
+    showUploadList: { showRemoveIcon: true },
+    onRemove: () => setImageFile(null),
+  };
+
   return (
     <Modal
       title="Thêm nghệ sĩ mới"
@@ -70,6 +109,7 @@ const CreateArtists = (props: IProps) => {
       onCancel={() => {
         setOpenModalCreate(false);
         form.resetFields();
+        setImageFile(null);
       }}
       okText="Tạo mới"
       cancelText="Hủy"
@@ -91,25 +131,15 @@ const CreateArtists = (props: IProps) => {
           <Input />
         </Form.Item>
 
-        <Form.Item<FieldType>
-          label="Hình ảnh"
-          name="imageUrl"
-          rules={[{ required: true }]}
-        >
-          <Input />
-        </Form.Item>
-
-        <Form.Item<FieldType>
-          label="Danh sách bài hát"
-          name="songIds"
-          rules={[{ required: true }]}
-        >
-          <Select
-            mode="multiple"
-            placeholder="Chọn bài hát"
-            options={songOptions}
-            optionFilterProp="label"
-          />
+        <Form.Item label="Hình ảnh" required>
+          <Upload {...uploadProps} listType="picture-card">
+            {!imageFile && (
+              <div>
+                <PlusOutlined />
+                <div style={{ marginTop: 8 }}>Upload</div>
+              </div>
+            )}
+          </Upload>
         </Form.Item>
       </Form>
     </Modal>

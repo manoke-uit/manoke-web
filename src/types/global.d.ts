@@ -41,10 +41,18 @@ declare global {
     id: string;
     title: string;
     songUrl: string;
-    artists: string[];
     playlists: string[];
     imageUrl: string;
     lyrics: string;
+    artists: {
+      id: string;
+      name: string;
+      imageUrl: string;
+    }[];
+    genres: {
+      id: string;
+      name: string;
+    }[];
   }
   export interface IPaginatedSongs {
     items: ISong[];
@@ -102,7 +110,7 @@ declare global {
   }
   export interface ICreateArtistPayload {
     name: string;
-    imageUrl: string;
+    image: File;
     songIds: string[];
   }
   export interface IArtists {

@@ -1,5 +1,16 @@
 import { useEffect, useState } from "react";
-import { App, Divider, Form, Input, Modal, Select, Button, Switch } from "antd";
+import {
+  App,
+  Divider,
+  Form,
+  Input,
+  Modal,
+  Select,
+  Upload,
+  Switch,
+  UploadProps,
+} from "antd";
+import { PlusOutlined } from "@ant-design/icons";
 import type { FormProps } from "antd";
 import { createPlaylistAPI, getAllSongs } from "@/services/api";
 import { useCurrentApp } from "@/components/context/app.context";
@@ -12,10 +23,8 @@ interface IProps {
 
 type FieldType = {
   title: string;
-  imageUrl: string;
   description: string;
   isPublic: boolean;
-  userId: string;
   songIds: string[];
 };
 
@@ -27,6 +36,7 @@ const CreatePlaylists = (props: IProps) => {
   const [songOptions, setSongOptions] = useState<
     { label: string; value: string }[]
   >([]);
+  const [imageFile, setImageFile] = useState<File | null>(null);
 
   const { user } = useCurrentApp();
   const userId = user?.userId;
@@ -48,25 +58,27 @@ const CreatePlaylists = (props: IProps) => {
   }, []);
 
   const onFinish: FormProps<FieldType>["onFinish"] = async (values) => {
-    const payload = {
-      ...values,
-      userId,
-    };
+    if (!imageFile) {
+      message.error("Vui lòng chọn ảnh playlist");
+      return;
+    }
 
     setIsSubmit(true);
     try {
       const res = await createPlaylistAPI(
-        payload.title,
-        payload.imageUrl,
-        payload.description,
-        payload.isPublic,
-        payload.userId!,
-        payload.songIds
+        values.title,
+        imageFile,
+        values.description,
+        values.isPublic,
+        userId!,
+        values.songIds
       );
+      console.log(res);
 
       if (res) {
         message.success("Tạo playlist thành công!");
         form.resetFields();
+        setImageFile(null);
         setOpenModalCreate(false);
         refreshTable();
       } else {
@@ -84,6 +96,16 @@ const CreatePlaylists = (props: IProps) => {
     setIsSubmit(false);
   };
 
+  const uploadProps: UploadProps = {
+    beforeUpload: (file) => {
+      setImageFile(file);
+      return false;
+    },
+    maxCount: 1,
+    showUploadList: { showRemoveIcon: true },
+    onRemove: () => setImageFile(null),
+  };
+
   return (
     <Modal
       title="Tạo Playlist mới"
@@ -92,6 +114,7 @@ const CreatePlaylists = (props: IProps) => {
       onCancel={() => {
         setOpenModalCreate(false);
         form.resetFields();
+        setImageFile(null);
       }}
       okText="Tạo mới"
       cancelText="Hủy"
@@ -113,12 +136,15 @@ const CreatePlaylists = (props: IProps) => {
           <Input />
         </Form.Item>
 
-        <Form.Item<FieldType>
-          label="Ảnh"
-          name="imageUrl"
-          rules={[{ required: true, message: "Vui lòng nhập URL ảnh" }]}
-        >
-          <Input />
+        <Form.Item label="Ảnh" required>
+          <Upload {...uploadProps} listType="picture-card">
+            {!imageFile && (
+              <div>
+                <PlusOutlined />
+                <div style={{ marginTop: 8 }}>Upload</div>
+              </div>
+            )}
+          </Upload>
         </Form.Item>
 
         <Form.Item<FieldType>

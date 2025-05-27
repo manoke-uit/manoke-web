@@ -43,6 +43,7 @@ const TableSongs = () => {
   const handleDeleteSong = async (id: string) => {
     setIsDeleteUser(true);
     const res = await deleteSongAPI(id);
+    console.log(res);
     if (res) {
       message.success("Xóa bài hát thành công");
       refreshTable();
@@ -83,6 +84,24 @@ const TableSongs = () => {
     {
       title: "Tên bài hát",
       dataIndex: "title",
+    },
+    {
+      title: "Nghệ sĩ",
+      dataIndex: "artists",
+      render: (_, entity) => (
+        <span>{entity.artists?.map((a) => a.name).join(", ")}</span>
+      ),
+      width: 200,
+      ellipsis: true,
+    },
+    {
+      title: "Thể loại",
+      dataIndex: "genres",
+      render: (_, entity) => (
+        <span>{entity.genres?.map((g) => g.name).join(", ")}</span>
+      ),
+      width: 200,
+      ellipsis: true,
     },
     {
       title: "Thao tác",

@@ -19,22 +19,7 @@ const CreateGenres = (props: IProps) => {
   const [form] = Form.useForm();
   const { message, notification } = App.useApp();
   const [isSubmit, setIsSubmit] = useState(false);
-  const [songOptions, setSongOptions] = useState<
-    { label: string; value: string }[]
-  >([]);
-  useEffect(() => {
-    const fetchSongs = async () => {
-      const res = await getAllSongs();
-      if (res && res.data) {
-        const options = res.data.map((song: ISong) => ({
-          label: song.title,
-          value: song.id,
-        }));
-        setSongOptions(options);
-      }
-    };
-    if (openModalCreate) fetchSongs();
-  }, [openModalCreate]);
+
   const onFinish: FormProps<FieldType>["onFinish"] = async (values) => {
     setIsSubmit(true);
     try {
@@ -87,19 +72,6 @@ const CreateGenres = (props: IProps) => {
             rules={[{ required: true }]}
           >
             <Input />
-          </Form.Item>
-
-          <Form.Item<FieldType>
-            label="Danh sách bài hát (ID)"
-            name="songIds"
-            rules={[{ required: true }]}
-          >
-            <Select
-              mode="multiple"
-              placeholder="Chọn bài hát"
-              options={songOptions}
-              optionFilterProp="label"
-            />
           </Form.Item>
         </Form>
       </Modal>
