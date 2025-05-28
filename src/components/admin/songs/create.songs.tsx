@@ -95,7 +95,6 @@ const CreateSongs = (props: IProps) => {
     setIsSubmit(true);
     try {
       const res = await createSongAPI(formData);
-      console.log([...formData.entries()]);
       console.log(res);
       if (res && res.data) {
         message.success("Tạo bài hát thành công!");

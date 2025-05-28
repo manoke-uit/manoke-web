@@ -1,7 +1,12 @@
 import { useEffect, useState } from "react";
 import { App, Divider, Form, Input, Modal, Select } from "antd";
 import type { FormProps } from "antd";
-import { updateSongAPI, getAllArtistsAPI } from "@/services/api";
+import {
+  updateSongAPI,
+  getAllArtistsAPI,
+  getAllSongs,
+  getAllGenresAPI,
+} from "@/services/api";
 
 interface IProps {
   openModalUpdate: boolean;
@@ -18,6 +23,7 @@ type FieldType = {
   lyrics: string;
   imageUrl: string;
   artistIds: string[];
+  genreIds: string[];
 };
 
 const UpdateSongs = (props: IProps) => {
@@ -35,6 +41,26 @@ const UpdateSongs = (props: IProps) => {
   const [artistOptions, setArtistOptions] = useState<
     { label: string; value: string }[]
   >([]);
+
+  const [genreOptions, setGenreOptions] = useState<
+    { label: string; value: string }[]
+  >([]);
+
+  useEffect(() => {
+    const fetchSongs = async () => {
+      try {
+        const res = await getAllGenresAPI();
+        const options = res?.data?.map((genre: any) => ({
+          label: genre.name,
+          value: genre.id,
+        }));
+        setGenreOptions(options);
+      } catch {
+        notification.error({ message: "Không thể tải danh sách bài hát" });
+      }
+    };
+    fetchSongs();
+  }, []);
 
   useEffect(() => {
     const fetchArtists = async () => {
@@ -61,13 +87,16 @@ const UpdateSongs = (props: IProps) => {
         songUrl: dataUpdate.songUrl,
         lyrics: dataUpdate.lyrics ?? "",
         imageUrl: dataUpdate.imageUrl ?? "",
+        songIds: dataUpdate.songIds ?? [],
         artistIds: dataUpdate.artists?.map((a) => a.id) ?? [],
+        genreIds: dataUpdate.genres?.map((g) => g.id) ?? [],
       });
     }
   }, [dataUpdate]);
 
   const onFinish: FormProps<FieldType>["onFinish"] = async (values) => {
-    const { id, title, lyrics, songUrl, imageUrl, artistIds } = values;
+    const { id, title, lyrics, songUrl, imageUrl, artistIds, genreIds } =
+      values;
 
     const formData = new FormData();
     formData.append("title", title);
@@ -75,6 +104,7 @@ const UpdateSongs = (props: IProps) => {
     formData.append("songUrl", songUrl);
     formData.append("imageUrl", imageUrl);
     artistIds.forEach((id) => formData.append("artistIds[]", id));
+    genreIds.forEach((id) => formData.append("genreIds[]", id));
     setIsSubmit(true);
     const res = await updateSongAPI(id, formData);
 
@@ -146,6 +176,21 @@ const UpdateSongs = (props: IProps) => {
           rules={[{ required: true }]}
         >
           <Input.TextArea rows={4} />
+        </Form.Item>
+        <Form.Item<FieldType>
+          label="Danh sách thể loại liên quan"
+          name="genreIds"
+          rules={[
+            { required: true, message: "Vui lòng chọn ít nhất 1 thể loại" },
+          ]}
+        >
+          <Select
+            mode="multiple"
+            placeholder="Chọn thể loại"
+            options={genreOptions}
+            showSearch
+            optionFilterProp="label"
+          />
         </Form.Item>
 
         <Form.Item<FieldType>

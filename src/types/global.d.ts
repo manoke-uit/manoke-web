@@ -53,6 +53,7 @@ declare global {
       id: string;
       name: string;
     }[];
+    songIds: string[];
   }
   export interface IPaginatedSongs {
     items: ISong[];

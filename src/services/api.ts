@@ -165,7 +165,7 @@ export const createPlaylistAPI = (
   formData.append("description", description);
   formData.append("isPublic", String(isPublic));
   formData.append("userId", userId);
-  songIds.forEach((id) => formData.append("songIds", id));
+  songIds.forEach((id) => formData.append("songIds[]", id));
 
   return axios.post("/playlists", formData, {
     headers: {
