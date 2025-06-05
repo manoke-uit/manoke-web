@@ -14,39 +14,37 @@ const LoginPage = () => {
   const { message, notification } = App.useApp();
   const { setIsAuthenticated, setUser } = useCurrentApp();
 
-const onFinish: FormProps<FieldType>["onFinish"] = async (values) => {
-  const { username, password } = values;
-  setIsSubmit(true);
-  const res = await loginAPI(username, password);
-  setIsSubmit(false);
+  const onFinish: FormProps<FieldType>["onFinish"] = async (values) => {
+    const { username, password } = values;
+    setIsSubmit(true);
+    const res = await loginAPI(username, password);
+    setIsSubmit(false);
 
-  if (res && res.accessToken) {
-    // Lưu token tạm
-    localStorage.setItem("access_token", res.accessToken);
+    if (res && res.accessToken) {
+      localStorage.setItem("access_token", res.accessToken);
 
-    try {
-      const account = await fetchAccountAPI(); 
+      try {
+        const account = await fetchAccountAPI();
 
-      if (!account.adminSecret) {
-        message.error("Tài khoản không có quyền quản trị!");
-        localStorage.removeItem("access_token"); 
-        return;
+        if (!account.adminSecret) {
+          message.error("Tài khoản không có quyền quản trị!");
+          localStorage.removeItem("access_token");
+          return;
+        }
+
+        setIsAuthenticated(true);
+        setUser(account);
+        localStorage.setItem("user", JSON.stringify(account));
+        message.success("Đăng nhập thành công với quyền quản trị!");
+        navigate("/");
+      } catch (err) {
+        message.error("Không thể kiểm tra thông tin tài khoản!");
+        localStorage.removeItem("access_token");
       }
-
-      setIsAuthenticated(true);
-      setUser(account);
-      localStorage.setItem("user", JSON.stringify(account));
-      message.success("Đăng nhập thành công với quyền quản trị!");
-      navigate("/");
-    } catch (err) {
-      message.error("Không thể kiểm tra thông tin tài khoản!");
-      localStorage.removeItem("access_token");
+    } else {
+      message.error("Sai tài khoản hoặc mật khẩu!");
     }
-  } else {
-    message.error("Sai tài khoản hoặc mật khẩu!");
-  }
-};
-
+  };
 
   const onFinishFailed: FormProps<FieldType>["onFinishFailed"] = (
     errorInfo
@@ -71,7 +69,7 @@ const onFinish: FormProps<FieldType>["onFinish"] = async (values) => {
               span: 24,
             }}
             wrapperCol={{ span: 24 }}
-            label="Username"
+            label="Email"
             name="username"
             rules={[{ required: true, message: "Please input your username!" }]}
           >
