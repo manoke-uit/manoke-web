@@ -6,7 +6,7 @@ import {
 } from "@ant-design/icons";
 import type { ActionType, ProColumns } from "@ant-design/pro-components";
 import { ProTable } from "@ant-design/pro-components";
-import { Button, message, notification, Popconfirm } from "antd";
+import { Button, message, notification, Popconfirm, Tag } from "antd";
 import { useRef, useState } from "react";
 
 import { deleteKaraokeAPI, getAllKaraokesAPI } from "@/services/api";
@@ -64,10 +64,25 @@ const TableKaraokes = () => {
       dataIndex: "description",
     },
     {
-      title: "Ngày tạo",
-      dataIndex: "createdAt",
-      valueType: "date",
+      title: "Trạng thái",
+      dataIndex: "status",
+      render: (text) => {
+        let color = "default";
+        let label = text;
+        if (text === "pending") {
+          color = "gold";
+          label = "Pending";
+        } else if (text === "private") {
+          color = "red";
+          label = "Private";
+        } else if (text === "public") {
+          color = "green";
+          label = "Public";
+        }
+        return <Tag color={color}>{label}</Tag>;
+      },
     },
+
     {
       title: "Action",
       hideInSearch: true,
