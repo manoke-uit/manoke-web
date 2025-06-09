@@ -17,6 +17,7 @@ type FieldType = {
   description: string;
   videoUrl: string;
   songId: string;
+  status: string;
 };
 
 const UpdateKaraokes = (props: IProps) => {
@@ -55,15 +56,31 @@ const UpdateKaraokes = (props: IProps) => {
         description: dataUpdate.description,
         videoUrl: dataUpdate.videoUrl,
         songId: dataUpdate.song?.id,
+        status: dataUpdate.status,
       });
     }
   }, [dataUpdate, songOptions]);
 
   const onFinish: FormProps<FieldType>["onFinish"] = async (values) => {
-    const { id, description, videoUrl, songId } = values;
+    const { id, description, videoUrl, songId, status } = values;
+    console.log("Update payload:", {
+      id,
+      description,
+      videoUrl,
+      songId,
+      status,
+    });
+
     setIsSubmit(true);
     try {
-      const res = await updateKaraokeAPI(id, description, videoUrl, songId);
+      const res = await updateKaraokeAPI(
+        id,
+        description,
+        videoUrl,
+        songId,
+        status
+      );
+
       console.log(res);
       if (res) {
         message.success("Cập nhật karaoke thành công!");
@@ -131,6 +148,17 @@ const UpdateKaraokes = (props: IProps) => {
           rules={[{ required: true }]}
         >
           <Select options={songOptions} placeholder="Chọn bài hát" />
+        </Form.Item>
+        <Form.Item<FieldType>
+          label="Trạng thái"
+          name="status"
+          rules={[{ required: true, message: "Vui lòng chọn trạng thái" }]}
+        >
+          <Select placeholder="Chọn trạng thái">
+            <Select.Option value="private">Riêng tư</Select.Option>
+            <Select.Option value="pending">Chờ duyệt</Select.Option>
+            <Select.Option value="public">Công khai</Select.Option>
+          </Select>
         </Form.Item>
       </Form>
     </Modal>

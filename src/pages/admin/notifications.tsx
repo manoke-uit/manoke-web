@@ -45,6 +45,7 @@ const Notifications = () => {
     setLoadingAll(true);
     try {
       const res = await sendNotificationToAllUserAPI(values);
+      console.log(res);
       if (res) {
         message.success("Notification sent to all users.");
         formAll.resetFields();

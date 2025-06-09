@@ -140,12 +140,14 @@ export const updateKaraokeAPI = (
   id: string,
   description: string,
   videoUrl: string,
-  songId: string
+  songId: string,
+  status: string
 ) => {
   return axios.patch(`/karaokes/${id}`, {
     description,
     videoUrl,
     songId,
+    status,
   });
 };
 export const deleteKaraokeAPI = (id: string) => {

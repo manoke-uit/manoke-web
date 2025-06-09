@@ -137,6 +137,7 @@ declare global {
       songUrl: string;
     };
     userId: string;
+    status: string;
   }
 
   interface IPlaylist {
