@@ -36,18 +36,33 @@ const CreateSongs = (props: IProps) => {
   >([]);
 
   useEffect(() => {
+    const fetchAllArtists = async () => {
+      let page = 1;
+      const allArtists: any[] = [];
+      let hasMore = true;
+
+      while (hasMore) {
+        const res = await getAllArtistsAPI(page);
+        const items = res?.items ?? [];
+        allArtists.push(...items);
+        hasMore = items.length > 0;
+        page++;
+      }
+
+      return allArtists;
+    };
+
     const fetchArtistsAndGenres = async () => {
       try {
-        const [artistRes, genreRes] = await Promise.all([
-          getAllArtistsAPI(1),
+        const [allArtists, genreRes] = await Promise.all([
+          fetchAllArtists(),
           getAllGenresAPI(),
         ]);
-        console.log(getAllGenresAPI);
-        const artists =
-          artistRes?.items?.map((artist: any) => ({
-            label: artist.name,
-            value: artist.id,
-          })) ?? [];
+
+        const artists = allArtists.map((artist: any) => ({
+          label: artist.name,
+          value: artist.id,
+        }));
 
         const genres =
           genreRes?.data?.map((genre: any) => ({
